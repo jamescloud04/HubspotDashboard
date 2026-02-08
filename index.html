@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HubSpot Analytics Dashboard</title>
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>📊 HubSpot Analytics Dashboard</h1>
+            <div id="upload-status" class="upload-status">
+                Ready to upload files
+            </div>
+        </div>
+    </header>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+        <div class="upload-container">
+            <h2>Upload Data Files</h2>
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <label for="deals-upload" class="upload-label">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">
+                            <strong>Deals CSV</strong>
+                            <small>deals.csv</small>
+                        </div>
+                        <input type="file" id="deals-upload" accept=".csv" style="display: none;">
+                    </label>
+                    <div id="deals-status" class="file-status"></div>
+                </div>
+                <div class="upload-box">
+                    <label for="leads-upload" class="upload-label">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">
+                            <strong>Leads CSV</strong>
+                            <small>leads.csv</small>
+                        </div>
+                        <input type="file" id="leads-upload" accept=".csv" style="display: none;">
+                    </label>
+                    <div id="leads-status" class="file-status"></div>
+                </div>
+            </div>
+            <button id="reset-data-btn" class="btn btn-secondary" style="display: none; margin-top: 1rem;">
+                🔄 Reset All Data
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Dashboard Page -->
+    <div id="dashboard-content" style="display: none;">
+        <div id="dashboard-page" class="page-content">
+            <!-- Filters Section -->
+            <section class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="date-range-filter">Date Range:</label>
+                        <input type="date" id="date-range-start" class="filter-input">
+                        <span>to</span>
+                        <input type="date" id="date-range-end" class="filter-input">
+                    </div>
+                    <div class="filter-group">
+                        <label for="lead-source-filter">Lead Source:</label>
+                        <select id="lead-source-filter" class="filter-input">
+                            <option value="">All Sources</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="deal-status-filter">Deal Status:</label>
+                        <select id="deal-status-filter" class="filter-input">
+                            <option value="">All Statuses</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>
+                            <input type="checkbox" id="active-only-filter">
+                            Active Deals Only
+                        </label>
+                    </div>
+                    <button id="reset-filters-btn" class="btn btn-small">reset filters</button>
+                </div>
+            </section>
+
+            <!-- KPI Cards Grid -->
+            <section class="kpi-section">
+                <h2>Key Performance Indicators</h2>
+                <div id="kpi-grid" class="kpi-grid">
+                    <!-- KPI cards will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <h2>Analytics Charts</h2>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Lead Funnel</h3>
+                        <div class="chart-container">
+                            <canvas id="funnel-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Monthly Revenue</h3>
+                        <div class="chart-container">
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Leads by Source</h3>
+                        <div class="chart-container">
+                            <canvas id="source-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Deal Value Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="value-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Insights Panel -->
+            <section class="insights-section">
+                <h2>Executive Insights</h2>
+                <div id="insights-container" class="insights-grid">
+                    <!-- Insights will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Data Quality Panel -->
+            <section class="quality-section">
+                <h2>Data Quality Report</h2>
+                <div class="quality-container">
+                    <div class="quality-summary">
+                        <div class="quality-stat">
+                            <span class="quality-label">Total Issues Found</span>
+                            <span id="total-issues" class="quality-value">0</span>
+                        </div>
+                        <div class="quality-stat">
+                            <span class="quality-label">Leads Issues</span>
+                            <span id="leads-issues" class="quality-value">0</span>
+                        </div>
+                        <div class="quality-stat">
+                            <span class="quality-label">Deals Issues</span>
+                            <span id="deals-issues" class="quality-value">0</span>
+                        </div>
+                    </div>
+                    <div id="quality-details" class="quality-details"></div>
+                    <button id="quality-export-btn" class="btn btn-small">📥 Export Error Report</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Deals Table Page -->
+        <div id="deals-page" class="page-content" style="display: none;">
+            <section class="full-page-table-section">
+                <h2>Deals Data</h2>
+                <div class="table-controls">
+                    <div class="search-box">
+                        <input type="text" id="deals-search" placeholder="Search deals...">
+                    </div>
+                    <div class="table-actions">
+                        <label>
+                            <input type="checkbox" id="deals-dq-filter">
+                            Show problematic rows only
+                        </label>
+                        <button id="deals-export-btn" class="btn btn-small">📥 Export CSV</button>
+                    </div>
+                </div>
+                <div id="deals-table-container" class="table-wrapper">
+                    <table id="deals-table" class="data-table">
+                        <thead>
+                            <tr id="deals-thead"></tr>
+                        </thead>
+                        <tbody id="deals-tbody"></tbody>
+                    </table>
+                </div>
+                <div id="deals-no-data" class="no-data-msg">No deals data loaded</div>
+            </section>
+        </div>
+
+        <!-- Leads Table Page -->
+        <div id="leads-page" class="page-content" style="display: none;">
+            <section class="full-page-table-section">
+                <h2>Leads Data</h2>
+                <div class="table-controls">
+                    <div class="search-box">
+                        <input type="text" id="leads-search" placeholder="Search leads...">
+                    </div>
+                    <div class="table-actions">
+                        <label>
+                            <input type="checkbox" id="leads-dq-filter">
+                            Show problematic rows only
+                        </label>
+                        <button id="leads-export-btn" class="btn btn-small">📥 Export CSV</button>
+                    </div>
+                </div>
+                <div id="leads-table-container" class="table-wrapper">
+                    <table id="leads-table" class="data-table">
+                        <thead>
+                            <tr id="leads-thead"></tr>
+                        </thead>
+                        <tbody id="leads-tbody"></tbody>
+                    </table>
+                </div>
+                <div id="leads-no-data" class="no-data-msg">No leads data loaded</div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Row Detail Modal -->
+<div id="detail-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">Record Details</h3>
+            <button class="modal-close" id="modal-close">✕</button>
+        </div>
+        <div id="modal-body" class="modal-body"></div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary modal-close">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Windows Taskbar -->
+<div class="taskbar">
+    <div class="taskbar-start">
+        <button class="start-button" id="start-menu-btn">
+            <span class="start-icon">🪟</span>
+            <span>Start</span>
+        </button>
+        <div class="taskbar-separator"></div>
+    </div>
+    <div class="taskbar-windows">
+        <button id="taskbar-dashboard" class="taskbar-button active" title="Dashboard" data-page="dashboard">
+            <span>📊 Dashboard</span>
+        </button>
+        <button id="taskbar-deals" class="taskbar-button" title="Deals" data-page="deals">
+            <span>💼 Deals</span>
+        </button>
+        <button id="taskbar-leads" class="taskbar-button" title="Leads" data-page="leads">
+            <span>👥 Leads</span>
+        </button>
+    </div>
+    <div class="taskbar-tray">
+        <div class="system-tray">
+            <span class="tray-icon" title="Volume">🔊</span>
+            <span class="tray-icon" title="Network">📡</span>
+            <span class="tray-icon" title="Power">🔋</span>
+            <span class="system-clock">12:00</span>
+        </div>
+    </div>
+</div>
+
+<!-- Start Menu -->
+<div class="start-menu" id="start-menu" style="display: none;">
+    <div class="start-menu-header">
+        <div class="start-menu-user">
+            <div class="user-avatar">👤</div>
+            <span>Administrator</span>
+        </div>
+    </div>
+    <div class="start-menu-programs">
+        <div class="start-menu-section">
+            <div class="start-menu-title">Programs</div>
+            <button class="start-menu-item">💼 My Computer</button>
+            <button class="start-menu-item">📁 File Explorer</button>
+            <button class="start-menu-item">📊 Analytics Dashboard</button>
+        </div>
+        <div class="start-menu-divider"></div>
+        <div class="start-menu-section">
+            <div class="start-menu-title">System</div>
+            <button class="start-menu-item">⚙️ Settings</button>
+            <button class="start-menu-item">🔍 Search</button>
+            <button class="start-menu-item">📞 Help & Support</button>
+        </div>
+        <div class="start-menu-divider"></div>
+        <div class="start-menu-section">
+            <button class="start-menu-item start-menu-shutdown">🔴 Shut Down...</button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Area -->
+<div class="notification-container" id="notifications"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

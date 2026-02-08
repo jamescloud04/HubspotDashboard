@@ -1,0 +1,517 @@
+/* RETRO ENHANCEMENTS - Maximum vibes */
+
+@keyframes skyShift {
+  0% {
+    background: linear-gradient(180deg, #a8c5dd 0%, #b8d0e6 15%, #c8d8f0 30%, #c0c0c0 50%, #b0b0b0 75%, #8a9a9a 100%);
+  }
+  50% {
+    background: linear-gradient(180deg, #b0cde8 0%, #c0d8f0 15%, #d0e0f5 30%, #c8c8c8 50%, #b8b8b8 75%, #929292 100%);
+  }
+  100% {
+    background: linear-gradient(180deg, #a8c5dd 0%, #b8d0e6 15%, #c8d8f0 30%, #c0c0c0 50%, #b0b0b0 75%, #8a9a9a 100%);
+  }
+}
+
+/* Retro XP/Vista scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8aa4c8 #d5dbe6;
+}
+
+*::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+*::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, #e9eef7 0%, #cfd7e6 100%);
+  border: 1px solid #9aa6ba;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.7), inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b7c7e6 0%, #7e96bd 100%);
+  border: 1px solid #6c82a7;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.6), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c6d6f2 0%, #8aa2c9 100%);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #8aa2c9 0%, #6b84ad 100%);
+}
+
+*::-webkit-scrollbar-corner {
+  background: #d5dbe6;
+}
+
+/* Add retro taskbar styling */
+.taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: linear-gradient(180deg, #c0c0c0 0%, #dfdfdf 100%);
+  border-top: 2px solid;
+  border-color: #dfdfdf #808080;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 0 2px;
+  z-index: 10000;
+  box-shadow: 
+    inset 1px 1px 0 rgba(255, 255, 255, 0.8),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.taskbar-start {
+  display: flex;
+  gap: 2px;
+}
+
+.start-btn {
+  background: linear-gradient(180deg, #c0c0c0 0%, #a0a0a0 100%);
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 11px;
+  font-family: "Segoe UI", sans-serif;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8), inset -1px -1px 0 rgba(0,0,0,0.2);
+  transition: all 0.05s;
+}
+
+.start-btn:active {
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.2), inset -1px -1px 0 rgba(255,255,255,0.8);
+}
+
+.start-logo {
+  font-size: 12px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #0099ff, #00ff99);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.taskbar-center {
+  flex: 1;
+  border-left: 2px solid rgba(0,0,0,0.1);
+  border-right: 2px solid rgba(0,0,0,0.1);
+  margin: 0 2px;
+}
+
+.taskbar-apps {
+  display: flex;
+  gap: 4px;
+  padding: 0 6px;
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
+}
+
+.taskbar-app {
+  height: 22px;
+  padding: 0 8px 2px 8px;
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+  font-size: 11px;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
+  color: #000;
+  text-decoration: none;
+}
+
+.taskbar-app.active {
+  background: linear-gradient(180deg, #e6f0ff 0%, #cfe1ff 100%);
+  border-color: #dfdfdf #505050 #505050 #dfdfdf;
+}
+
+.taskbar-app:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #e6f0ff 100%);
+  border-color: #dfdfdf #606060 #606060 #dfdfdf;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.9);
+}
+
+.taskbar-app:active {
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  background: linear-gradient(180deg, #d6d6d6 0%, #f0f0f0 100%);
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.2), inset -1px -1px 0 rgba(255,255,255,0.8);
+}
+
+.taskbar-system {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  gap: 4px;
+}
+
+.system-clock {
+  background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: "Segoe UI", monospace;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Start menu */
+.start-menu {
+  position: fixed;
+  bottom: 28px;
+  left: 6px;
+  width: 320px;
+  border: 2px solid;
+  border-color: #dfdfdf #505050 #505050 #dfdfdf;
+  background: linear-gradient(180deg, rgba(240, 245, 255, 0.98) 0%, rgba(220, 230, 245, 0.98) 100%);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.8),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2),
+    6px 6px 12px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  pointer-events: none;
+  transition: all 120ms ease;
+  z-index: 10001;
+}
+
+.start-menu.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.start-menu-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(180deg, #dfe9f6 0%, #c8d8ef 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.start-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+}
+
+.start-user-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #0a246a;
+}
+
+.start-user-sub {
+  font-size: 0.75rem;
+  color: #4a4a4a;
+}
+
+.start-menu-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+}
+
+.start-menu-section {
+  display: grid;
+  gap: 6px;
+}
+
+.start-item {
+  display: block;
+  text-align: left;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  color: #1a1a1a;
+  background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 100%);
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: "Segoe UI", sans-serif;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.start-item:hover {
+  background: linear-gradient(180deg, #e6f0ff 0%, #cfe1ff 100%);
+  color: #0a246a;
+}
+
+.start-section-title {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #0a246a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  margin-bottom: 2px;
+  opacity: 0.8;
+}
+
+.start-menu-footer {
+  padding: 6px 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  background: linear-gradient(180deg, #dfe9f6 0%, #c8d8ef 100%);
+  font-size: 0.7rem;
+  color: #4a4a4a;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Enhance content with retro styling */
+.content {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+}
+
+/* Title styling without jitter */
+.content h1 {
+  animation: titleGlow 4s ease-in-out infinite;
+}
+
+/* XP/Vista window chrome */
+
+/* Retro button styling enhancements */
+
+
+
+
+/* About section with retro styling */
+.about-section {
+  border: 2px solid;
+  border-color: #dfdfdf #505050 #505050 #dfdfdf;
+  background: linear-gradient(180deg, #f5f5f5 0%, #ece9d8 100%);
+  box-shadow: 
+    inset 2px 2px 0 rgba(255, 255, 255, 0.9),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.15),
+    3px 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Retro progress bar animation */
+@keyframes titleGlow {
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(0, 100, 150, 0)); }
+  50% { filter: drop-shadow(0 0 8px rgba(0, 100, 150, 0.4)); }
+}
+
+@keyframes crtFlicker {
+  0% { opacity: 0.97; }
+  2% { opacity: 0.99; }
+  4% { opacity: 0.98; }
+  5% { opacity: 1; }
+  7% { opacity: 0.98; }
+  8% { opacity: 0.98; }
+  10% { opacity: 0.99; }
+  100% { opacity: 1; }
+}
+
+/* CRT monitor flicker effect on body */
+body {
+  background: #3b6cb7;
+  background-color: #3b6cb7;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.04) 0,
+    rgba(255, 255, 255, 0.04) 1px,
+    rgba(0, 0, 0, 0.03) 1px,
+    rgba(0, 0, 0, 0.03) 2px
+  );
+  background-size: 2px 2px;
+  background-attachment: initial;
+  animation: none;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Enhanced text effects */
+h2, h3, h4 {
+  animation: textFlicker 6s ease-in-out infinite;
+}
+
+@keyframes textFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5), 2px 2px 3px rgba(0, 0, 0, 0.3); }
+  20%, 24%, 55% { opacity: 0.95; }
+}
+
+
+
+/* Modal enhancements */
+
+.window h2 {
+  margin-top: 0;
+  padding-right: 90px;
+}
+
+.widget {
+  width: 220px;
+  position: relative;
+  border: 2px solid;
+  border-color: #dfdfdf #505050 #505050 #dfdfdf;
+  background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.85),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2),
+    4px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  overflow: visible;
+  resize: none;
+  min-width: 180px;
+  min-height: 120px;
+  z-index: 2;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget .window-titlebar {
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: linear-gradient(180deg, #f5f5f5 0%, #dcdcdc 100%);
+  border: 2px solid;
+  border-color: #dfdfdf #808080 #808080 #dfdfdf;
+  padding: 2px 8px;
+  height: 20px;
+  width: max-content;
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.widget .window-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0a246a;
+  white-space: nowrap;
+}
+
+
+.widget-body {
+  padding: 12px 8px 8px 8px;
+  font-size: 0.85rem;
+  color: #1a1a1a;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .widget .window-titlebar {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    margin: 0;
+  }
+
+  .widget {
+    padding-top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .widgets {
+    gap: 20px;
+    width: 100%;
+  }
+
+  .widget-calendar,
+  .widget-weather,
+  .widget-sysinfo {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  body.home-page .widgets .widget.window-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+.widget-clock .widget-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.widget-time {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.widget-date {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #4a4a4a;
+}
+
+.widget-notes ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.widget-calendar {
+  width: 180px;
+}
+
+.widget-weather {
+  width: 180px;
+}
+
+.widget-sysinfo {
+  width: 180px;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.2);
+  font-size: 11px;
+}
+
+.status-row:last-child {
+  border-bottom: none;
+}
+
+/* Retro divider effects */
+.contact-info p, .repo-item p {
+  animation: fadeInLine 2s ease-in-out infinite;
+}
+
+@keyframes fadeInLine {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}

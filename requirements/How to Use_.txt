@@ -1,0 +1,90 @@
+Leads.CSV
+
+Data:
+- First Name
+- Last Name
+- Associated notes
+- Don't worry about anything with this
+- Source
+- This would be one of the KPIs to see where the leads come from
+- Lead Status
+- This determines where they are in the sales process
+- There is marketing qualified lead which means they were able to book a call hence they were marketing qualified 
+- If they are sales qualified that means on the call the closer thought the person was qualified this is another KPI i would like to track
+- Email to meeting time doesn't really matter
+- 1st call status
+- This will help generate show rate for the 1st sales call
+- If it says rescheduled then they reschedule the call to another time
+- Reschedule call status
+- Will be used for show rate of the reschedule call
+- 2nd call needed
+- Calculate the percentage of people that book a call
+- 2nd call status
+- For 2nd call show rate
+
+KPIs:
+Everyone in this dashboard is a = Lead
+- Amount of Leads
+- Amount of Booked calls
+- These are people that are marketing qualified leads/sales qualified leads/closed
+- All these have booked a call
+- 1st call show rate
+- If Show thats good
+- If no show thats bad
+- If reschedule need that in there too
+- If it says DQ’d b4 call don’t count that in calculation for 1st show rate because we dq’d them
+- DQ Rate
+- So Amount of Booked Calls and how many were dq’d
+- This is tracked by either DQ’d b4 call or DQ’d on call
+- Amount of Shown First Calls
+- Reschedule Call Amount/Show Rate
+- 2nd call show rate
+- Close Rate
+- Amount of closed or customers per shown calls
+- Lead to Close Rate
+- Percentage of closes to how many leads
+- Booked Call to Close Rate
+- Percentage of Booked calls to actual closes 
+- Qualified on call percentage 
+- Amount of people that booked a call and became a sales qualified lead
+- If they are a customer assume they were a sales qualified lead
+- Unqualified On Call Percentage
+
+Deals.CSV
+
+Data:
+- Active = Contract is Live
+- Contract term is what they signed
+- Payment Frequency is how often they pay
+- Installment Amount is how much they per paymount period
+- If their payment frequency is bi-weekly the installment amount is cut in half
+- Contract value is the installment amount x the length of the contract
+- Total paid is how much they have paid to date
+- Last payment 
+- Next payment
+- Associated Contact is the person in the leads.csv who signed
+
+KPIs:
+- Amount of Clients Live
+- Total Clients Ever
+- Total Cash Collected
+- Which would be sum of total paid
+- Total Cash Collected in that month
+- Total Contract Value
+- Total Contract Value in that month
+
+Now i need leads to deals to work together from some kpi
+
+- Cash Collected Per Booked Call
+- Contract Value Per booked call
+- Cash Collected Per Lead
+- Contract Value Per lead
+- Average Sale
+- Which would be average contract value
+- I put example below of the kpis 
+- The one would be the different closers but we only have one guy closing so all of it would be under one person.
+
+
+
+
+

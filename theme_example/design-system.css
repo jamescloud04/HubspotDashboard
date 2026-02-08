@@ -1,0 +1,119 @@
+:root {
+  --win-bg: linear-gradient(180deg, #f5f5f5 0%, #ece9d8 100%);
+  --win-border-light: #dfdfdf;
+  --win-border-dark: #505050;
+  --win-shadow: 6px 6px 12px rgba(0, 0, 0, 0.25);
+  --win-titlebar-bg: linear-gradient(180deg, #dfe9f6 0%, #c8d8ef 100%);
+  --win-titlebar-text: #0a246a;
+  --control-bg: linear-gradient(180deg, #f8f8f8 0%, #dedede 100%);
+  --control-border-light: #e6e6e6;
+  --control-border-dark: #7a7a7a;
+  --control-size: 22px;
+  --control-gap: 4px;
+}
+
+.window-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  border: 2px solid;
+  border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+  background: var(--win-bg);
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.85), inset -2px -2px 0 rgba(0, 0, 0, 0.2), var(--win-shadow);
+  border-radius: 4px;
+  resize: none;
+  overflow: hidden;
+}
+
+.window-shell.window-floating {
+  resize: both;
+  min-width: 260px;
+  min-height: 180px;
+}
+
+.window-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--win-titlebar-bg);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.window-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--win-titlebar-text);
+  white-space: nowrap;
+}
+
+.window-actions {
+  display: flex;
+  gap: var(--control-gap);
+  align-items: center;
+}
+
+.window-action {
+  width: var(--control-size);
+  height: var(--control-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid;
+  border-color: var(--control-border-light) var(--control-border-dark) var(--control-border-dark) var(--control-border-light);
+  background: var(--control-bg);
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.9), inset -1px -1px 0 rgba(0,0,0,0.12);
+  font-family: "Segoe UI", sans-serif;
+}
+
+.window-action:hover {
+  filter: brightness(1.05);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.9);
+}
+
+.window-action:active {
+  border-color: #808080 var(--control-border-light) var(--control-border-light) #808080;
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.2), inset -1px -1px 0 rgba(255,255,255,0.8);
+}
+
+.window-action.window-minimize {
+  background: linear-gradient(180deg, #eef4ff 0%, #cddcff 100%);
+}
+
+.window-action.window-maximize {
+  background: linear-gradient(180deg, #eef9f0 0%, #cfe7d6 100%);
+}
+
+.window-action.modal-close {
+  background: linear-gradient(180deg, #ffe9e9 0%, #f3c7c7 100%);
+  border-color: #f0d0d0 #7a4a4a #7a4a4a #f0d0d0;
+}
+
+.window-body {
+  padding: 1rem;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.widget-shell {
+  width: 220px;
+  min-width: 180px;
+  min-height: 120px;
+}
+
+.window-hidden {
+  display: none !important;
+}
+
+.window-minimized {
+  display: none !important;
+}
