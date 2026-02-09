@@ -63,6 +63,15 @@ export const KPI_REGISTRY = {
         dependencies: ['deals'],
         drilldown: { table: 'deals', filter: null }
     },
+    'deals_closed_count': {
+        id: 'deals_closed_count',
+        label: 'Won',
+        description: 'Count of closed deals',
+        tooltip: 'Count of deals with closed status',
+        formatter: 'integer',
+        dependencies: ['deals'],
+        drilldown: { table: 'deals', filter: null }
+    },
 
     // Lead KPIs
     'leads_total': {
@@ -76,16 +85,34 @@ export const KPI_REGISTRY = {
     },
     'leads_booked_calls': {
         id: 'leads_booked_calls',
-        label: 'Booked Calls',
+        label: 'Calls',
         description: 'Count of leads with booked calls',
         tooltip: 'Sum of booked_calls field (or count of booked=true)',
         formatter: 'integer',
         dependencies: ['leads'],
         drilldown: { table: 'leads', filter: null }
     },
+    'leads_first_call_shown_count': {
+        id: 'leads_first_call_shown_count',
+        label: 'Show',
+        description: 'Count of shown first calls',
+        tooltip: 'Count of leads with first call shown',
+        formatter: 'integer',
+        dependencies: ['leads'],
+        drilldown: { table: 'leads', filter: null }
+    },
+    'leads_qualified_count': {
+        id: 'leads_qualified_count',
+        label: 'Qualified',
+        description: 'Count of qualified leads',
+        tooltip: 'Count of leads marked as qualified or customer',
+        formatter: 'integer',
+        dependencies: ['leads'],
+        drilldown: { table: 'leads', filter: null }
+    },
     'leads_first_call_show_rate': {
         id: 'leads_first_call_show_rate',
-        label: '1st Call Show Rate',
+        label: 'Call to Show %',
         description: 'Percentage of first calls that were shown',
         tooltip: 'Shown ÷ (Booked - DQ Before Call)',
         formatter: 'percent',
@@ -128,6 +155,15 @@ export const KPI_REGISTRY = {
         dependencies: ['leads'],
         drilldown: { table: 'leads', filter: null }
     },
+    'leads_show_to_qualified_rate': {
+        id: 'leads_show_to_qualified_rate',
+        label: 'Show to Qualified %',
+        description: 'Percentage of shown calls that qualified',
+        tooltip: 'Qualified ÷ Shown',
+        formatter: 'percent',
+        dependencies: ['leads'],
+        drilldown: { table: 'leads', filter: null }
+    },
     'leads_second_call_show_rate': {
         id: 'leads_second_call_show_rate',
         label: '2nd Call Show Rate',
@@ -150,12 +186,30 @@ export const KPI_REGISTRY = {
     // Cross KPIs (leads + deals)
     'cross_close_rate': {
         id: 'cross_close_rate',
-        label: 'Close Rate',
+        label: 'Show to Close %',
         description: 'Percentage of shown first calls that closed',
         tooltip: 'Closed Deals ÷ Shown First Calls',
         formatter: 'percent',
         dependencies: ['leads', 'deals'],
         drilldown: { table: 'deals', filter: null }
+    },
+    'cross_qualified_close_rate': {
+        id: 'cross_qualified_close_rate',
+        label: 'Qualified Close %',
+        description: 'Percentage of qualified leads that closed',
+        tooltip: 'Closed Deals ÷ Qualified Leads',
+        formatter: 'percent',
+        dependencies: ['leads', 'deals'],
+        drilldown: { table: 'deals', filter: null }
+    },
+    'cross_lead_to_close': {
+        id: 'cross_lead_to_close',
+        label: 'Lead to Close',
+        description: 'Leads per closed deal',
+        tooltip: 'Total Leads ÷ Closed Deals',
+        formatter: 'integer',
+        dependencies: ['leads', 'deals'],
+        drilldown: { table: 'leads', filter: null }
     },
     'cross_cash_per_lead': {
         id: 'cross_cash_per_lead',
@@ -177,9 +231,18 @@ export const KPI_REGISTRY = {
     },
     'cross_cash_per_booked_call': {
         id: 'cross_cash_per_booked_call',
-        label: 'Cash Per Booked Call',
+        label: 'Cash Per Call',
         description: 'Average cash per booked call',
         tooltip: 'Total Cash ÷ Booked Calls',
+        formatter: 'currency',
+        dependencies: ['leads', 'deals'],
+        drilldown: { table: 'leads', filter: null }
+    },
+    'cross_contract_value_per_booked_call': {
+        id: 'cross_contract_value_per_booked_call',
+        label: 'Contract Value Per Call',
+        description: 'Average contract value per booked call',
+        tooltip: 'Total Contract Value ÷ Booked Calls',
         formatter: 'currency',
         dependencies: ['leads', 'deals'],
         drilldown: { table: 'leads', filter: null }

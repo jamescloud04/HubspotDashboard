@@ -20,43 +20,44 @@
         </div>
     </header>
 
-    <!-- Upload Section -->
-    <section class="upload-section">
-        <div class="upload-container">
-            <h2>Upload Data Files</h2>
-            <div class="upload-grid">
-                <div class="upload-box">
-                    <label for="deals-upload" class="upload-label">
-                        <div class="upload-icon">📁</div>
-                        <div class="upload-text">
-                            <strong>Deals CSV</strong>
-                            <small>deals.csv</small>
-                        </div>
-                        <input type="file" id="deals-upload" accept=".csv" style="display: none;">
-                    </label>
-                    <div id="deals-status" class="file-status"></div>
-                </div>
-                <div class="upload-box">
-                    <label for="leads-upload" class="upload-label">
-                        <div class="upload-icon">📁</div>
-                        <div class="upload-text">
-                            <strong>Leads CSV</strong>
-                            <small>leads.csv</small>
-                        </div>
-                        <input type="file" id="leads-upload" accept=".csv" style="display: none;">
-                    </label>
-                    <div id="leads-status" class="file-status"></div>
-                </div>
-            </div>
-            <button id="reset-data-btn" class="btn btn-secondary" style="display: none; margin-top: 1rem;">
-                🔄 Reset All Data
-            </button>
-        </div>
-    </section>
-
     <!-- Main Dashboard Page -->
-    <div id="dashboard-content" style="display: none;">
-        <div id="dashboard-page" class="page-content">
+    <div id="dashboard-content">
+        <div id="upload-page" class="page-content">
+            <section class="upload-section">
+                <div class="upload-container">
+                    <h2>Upload Data Files</h2>
+                    <div class="upload-grid">
+                        <div class="upload-box">
+                            <label for="deals-upload" class="upload-label">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">
+                                    <strong>Deals CSV</strong>
+                                    <small>deals.csv</small>
+                                </div>
+                                <input type="file" id="deals-upload" accept=".csv" style="display: none;">
+                            </label>
+                            <div id="deals-status" class="file-status"></div>
+                        </div>
+                        <div class="upload-box">
+                            <label for="leads-upload" class="upload-label">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">
+                                    <strong>Leads CSV</strong>
+                                    <small>leads.csv</small>
+                                </div>
+                                <input type="file" id="leads-upload" accept=".csv" style="display: none;">
+                            </label>
+                            <div id="leads-status" class="file-status"></div>
+                        </div>
+                    </div>
+                    <button id="reset-data-btn" class="btn btn-secondary" style="display: none; margin-top: 1rem;">
+                        🔄 Reset All Data
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div id="dashboard-page" class="page-content dashboard-compact">
             <!-- Filters Section -->
             <section class="filters-section">
                 <div class="filters-container">
@@ -112,6 +113,14 @@
                             <canvas id="revenue-chart"></canvas>
                         </div>
                     </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="charts-page" class="page-content" style="display: none;">
+            <section class="charts-section">
+                <h2>Analytics Charts</h2>
+                <div class="charts-grid">
                     <div class="chart-card">
                         <h3>Leads by Source</h3>
                         <div class="chart-container">
@@ -126,16 +135,18 @@
                     </div>
                 </div>
             </section>
+        </div>
 
-            <!-- Insights Panel -->
+        <div id="insights-page" class="page-content" style="display: none;">
             <section class="insights-section">
                 <h2>Executive Insights</h2>
                 <div id="insights-container" class="insights-grid">
                     <!-- Insights will be inserted here -->
                 </div>
             </section>
+        </div>
 
-            <!-- Data Quality Panel -->
+        <div id="quality-page" class="page-content" style="display: none;">
             <section class="quality-section">
                 <h2>Data Quality Report</h2>
                 <div class="quality-container">
@@ -214,6 +225,41 @@
                 <div id="leads-no-data" class="no-data-msg">No leads data loaded</div>
             </section>
         </div>
+
+        <!-- Closers Stats Page -->
+        <div id="closers-page" class="page-content" style="display: none;">
+            <section class="full-page-table-section">
+                <h2>Closer Statistics</h2>
+                <div class="table-controls">
+                    <div class="search-box">
+                        <input type="text" id="closers-search" placeholder="Search closers...">
+                    </div>
+                </div>
+                <div id="closers-table-container" class="table-wrapper">
+                    <table id="closers-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Closer</th>
+                                <th>Deals</th>
+                                <th>Won</th>
+                                <th>Close Rate</th>
+                                <th>Active</th>
+                                <th>Total Value</th>
+                                <th>Cash Collected</th>
+                                <th>Average Sale</th>
+                                <th>Collection Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="closers-tbody"></tbody>
+                    </table>
+                </div>
+                <div id="closers-no-data" class="no-data-msg">No deals data loaded</div>
+            </section>
+        </div>
+
+        <div id="settings-page" class="page-content" style="display: none;">
+            <!-- Settings content will be rendered here -->
+        </div>
     </div>
 </div>
 
@@ -241,14 +287,32 @@
         <div class="taskbar-separator"></div>
     </div>
     <div class="taskbar-windows">
+        <button id="taskbar-upload" class="taskbar-button" title="Upload" data-page="upload">
+            <span>📥 Upload</span>
+        </button>
         <button id="taskbar-dashboard" class="taskbar-button active" title="Dashboard" data-page="dashboard">
             <span>📊 Dashboard</span>
+        </button>
+        <button id="taskbar-charts" class="taskbar-button" title="Charts" data-page="charts">
+            <span>📈 Charts</span>
+        </button>
+        <button id="taskbar-insights" class="taskbar-button" title="Insights" data-page="insights">
+            <span>🧠 Insights</span>
+        </button>
+        <button id="taskbar-quality" class="taskbar-button" title="Quality" data-page="quality">
+            <span>✅ Quality</span>
         </button>
         <button id="taskbar-deals" class="taskbar-button" title="Deals" data-page="deals">
             <span>💼 Deals</span>
         </button>
         <button id="taskbar-leads" class="taskbar-button" title="Leads" data-page="leads">
             <span>👥 Leads</span>
+        </button>
+        <button id="taskbar-closers" class="taskbar-button" title="Closers" data-page="closers">
+            <span>🏆 Closers</span>
+        </button>
+        <button id="taskbar-settings" class="taskbar-button" title="Settings" data-page="settings">
+            <span>⚙️ Settings</span>
         </button>
     </div>
     <div class="taskbar-tray">

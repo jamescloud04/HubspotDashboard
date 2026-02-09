@@ -3,7 +3,7 @@
  * Rendering functions for KPI cards, tables, charts, insights, etc.
  */
 
-import { getKPIDefinition } from '../kpis/definitions.js';
+import { getKPIDefinition, getKPIsForDependencies } from '../kpis/definitions.js';
 import { getKPIDisplayValue } from '../kpis/compute.js';
 import { formatCurrency, formatPercent, formatInteger, formatDate } from '../data/parse.js';
 import { state } from './state.js';
@@ -38,8 +38,12 @@ export function renderKPIGrid(kpiValues, hasLeads, hasDeals) {
     }
 
     let html = '';
-    Object.keys(kpiValues).forEach(kpiId => {
-        html += renderKPICard(kpiId, kpiValues[kpiId]);
+    const ordered = getKPIsForDependencies(hasLeads, hasDeals);
+    ordered.forEach(kpi => {
+        const value = kpiValues[kpi.id];
+        if (value) {
+            html += renderKPICard(kpi.id, value);
+        }
     });
 
     return html || '<div class="no-data-msg">No KPIs available</div>';
@@ -256,10 +260,23 @@ export function updateFileStatus(fileType, status, message) {
 /**
  * Get visible columns for display
  */
-export function getVisibleColumns(table) {
+export function getVisibleColumns(table, data = null) {
+    // If data is provided, get all actual columns from the data
+    if (data && data.length > 0) {
+        const firstRow = data[0];
+        return Object.keys(firstRow).filter(key => !key.startsWith('_'));
+    }
+    
+    // Fallback to comprehensive default lists
     const allFields = table === 'leads' ? 
-        ['lead_id', 'lead_name', 'email', 'source', 'status', 'booked_calls', 'first_call_shown', 'dq_before_call', 'dq_on_call', 'qualified', 'customer', 'created_date'] :
-        ['deal_id', 'deal_name', 'contract_value', 'total_paid', 'status', 'active', 'close_date', 'payment_date', 'associated_contact'];
+        ['lead_id', 'first_name', 'last_name', 'email', 'phone', 'company', 'source', 'lead_status', 'lifecycle_stage', 
+         'booked_calls', 'first_call_shown', 'first_call_no_show', 'dq_before_call', 'dq_on_call', 'qualified', 'customer', 
+         'second_call_booked', 'second_call_shown', 'reschedule_count', 'created_date', 'first_call_date', 'notes',
+         'first_call_status', 'rescheduled_call_status', 'second_call_needed', 'second_call_time', 'second_call_status',
+         'reschedule_call_time', 'associated_note', 'associated_note_ids'] :
+        ['deal_id', 'deal_name', 'contract_value', 'total_paid', 'payment_date', 'contract_start_date', 'contract_end_date',
+         'close_date', 'associated_contact', 'notes', 'status', 'active', 'contract_status', 'contract_term', 
+         'payment_frequency', 'installment_amount', 'next_payment_date', 'deal_owner'];
 
     return allFields;
 }
