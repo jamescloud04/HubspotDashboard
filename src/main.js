@@ -2,8 +2,8 @@
  * HubSpot Analytics Dashboard - Main Application
  */
 
-import { parseCSV, validateAndNormalizeDataset, DataQualityIssue } from './data/parse.js';
-import { transformDataset } from './data/transforms.js';
+import { parseCSV, validateAndNormalizeDataset, DataQualityIssue, formatCurrency, formatPercent, formatInteger } from './data/parse.js';
+import { transformDataset, filterDataset } from './data/transforms.js';
 import { computeAllKPIs } from './kpis/compute.js';
 import { generateInsights } from './kpis/insights.js';
 import { getKPIsForDependencies, getKPIDefinition } from './kpis/definitions.js';
@@ -18,7 +18,10 @@ import {
     setQualityIssues,
     clearAllData,
     setCurrentPage,
-    subscribe
+    setTableState,
+    subscribe,
+    loadDashboardSettings,
+    updateDashboardSettings
 } from './ui/state.js';
 import {
     renderKPIGrid,
@@ -44,6 +47,9 @@ let chartsInstances = {};
  * Initialize application
  */
 async function init() {
+    // Load saved dashboard settings
+    loadDashboardSettings();
+
     // Setup file upload handlers
     setupFileUploads();
 
@@ -56,6 +62,9 @@ async function init() {
     // Setup navigation
     setupNavigation();
 
+    // Setup closers search
+    setupClosersSearch(renderWithKPIUpdate);
+
     // Subscribe to state changes
     subscribe(render);
 
@@ -64,7 +73,7 @@ async function init() {
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
             clearAllData();
-            document.getElementById('dashboard-content').style.display = 'none';
+            setCurrentPage('upload');
             document.getElementById('upload-status').textContent = 'Data cleared. Ready to upload.';
         });
     }
@@ -219,16 +228,28 @@ function setupNavigation() {
  * Show the current page and hide others
  */
 function showCurrentPage() {
+    const uploadPage = document.getElementById('upload-page');
     const dashboardPage = document.getElementById('dashboard-page');
+    const chartsPage = document.getElementById('charts-page');
+    const insightsPage = document.getElementById('insights-page');
+    const qualityPage = document.getElementById('quality-page');
     const dealsPage = document.getElementById('deals-page');
     const leadsPage = document.getElementById('leads-page');
+    const closersPage = document.getElementById('closers-page');
+    const settingsPage = document.getElementById('settings-page');
     
     const taskbarButtons = document.querySelectorAll('.taskbar-button');
 
     // Hide all pages
+    if (uploadPage) uploadPage.style.display = 'none';
     if (dashboardPage) dashboardPage.style.display = 'none';
+    if (chartsPage) chartsPage.style.display = 'none';
+    if (insightsPage) insightsPage.style.display = 'none';
+    if (qualityPage) qualityPage.style.display = 'none';
     if (dealsPage) dealsPage.style.display = 'none';
     if (leadsPage) leadsPage.style.display = 'none';
+    if (closersPage) closersPage.style.display = 'none';
+    if (settingsPage) settingsPage.style.display = 'none';
 
     // Remove active class from all taskbar buttons
     taskbarButtons.forEach(btn => {
@@ -243,12 +264,25 @@ function showCurrentPage() {
         }
     });
 
-    if (currentPage === 'dashboard' && dashboardPage) {
+    if (currentPage === 'upload' && uploadPage) {
+        uploadPage.style.display = 'block';
+    } else if (currentPage === 'dashboard' && dashboardPage) {
         dashboardPage.style.display = 'block';
+    } else if (currentPage === 'charts' && chartsPage) {
+        chartsPage.style.display = 'block';
+    } else if (currentPage === 'insights' && insightsPage) {
+        insightsPage.style.display = 'block';
+    } else if (currentPage === 'quality' && qualityPage) {
+        qualityPage.style.display = 'block';
     } else if (currentPage === 'deals' && dealsPage) {
         dealsPage.style.display = 'block';
     } else if (currentPage === 'leads' && leadsPage) {
         leadsPage.style.display = 'block';
+    } else if (currentPage === 'closers' && closersPage) {
+        closersPage.style.display = 'block';
+    } else if (currentPage === 'settings' && settingsPage) {
+        renderDashboardSettings();
+        settingsPage.style.display = 'block';
     }
 }
 
@@ -315,15 +349,134 @@ function render() {
     if (state.ui.currentPage === 'dashboard') {
         renderKPISection();
         renderChartsSection();
+        updateDashboardVisibility();
+    } else if (state.ui.currentPage === 'charts') {
+        renderChartsSection();
+    } else if (state.ui.currentPage === 'insights') {
         renderInsightsSection();
+    } else if (state.ui.currentPage === 'quality') {
         renderQualitySection();
     } else if (state.ui.currentPage === 'deals') {
         renderDealsTable();
     } else if (state.ui.currentPage === 'leads') {
         renderLeadsTable();
+    } else if (state.ui.currentPage === 'closers') {
+        renderClosersTable();
     }
 
     updateUploadStatus(state.rawLeads, state.rawDeals);
+}
+
+/**
+ * Render dashboard customization settings
+ */
+function renderDashboardSettings() {
+    const settingsPage = document.getElementById('settings-page');
+    if (!settingsPage) return;
+
+    const settings = state.ui.dashboardSettings;
+    let html = `
+        <section class="settings-section">
+            <h2>Dashboard Customization</h2>
+            <p style="margin-bottom: 1.5rem; color: #666;">Choose which sections to display on the main dashboard:</p>
+            <div class="settings-grid">
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="setting-kpis" ${settings.showKPIs ? 'checked' : ''}>
+                    <span>Show KPI Cards</span>
+                </label>
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="setting-funnel" ${settings.showFunnelChart ? 'checked' : ''}>
+                    <span>Show Funnel Chart</span>
+                </label>
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="setting-revenue" ${settings.showRevenueChart ? 'checked' : ''}>
+                    <span>Show Revenue Chart</span>
+                </label>
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="setting-insights" ${settings.showInsights ? 'checked' : ''}>
+                    <span>Show Insights Section</span>
+                </label>
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="setting-quality" ${settings.showQuality ? 'checked' : ''}>
+                    <span>Show Quality Section</span>
+                </label>
+                <label class="settings-checkbox">
+                    <input type="checkbox" id="setting-compact" ${settings.compactMode ? 'checked' : ''}>
+                    <span>Compact Mode (smaller text/spacing)</span>
+                </label>
+            </div>
+            <div style="margin-top: 1.5rem;">
+                <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+                <button id="reset-settings-btn" class="btn" style="margin-left: 0.5rem;">Reset to Defaults</button>
+            </div>
+        </section>
+    `;
+
+    settingsPage.innerHTML = html;
+
+    // Setup save handler
+    const saveBtn = document.getElementById('save-settings-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const newSettings = {
+                showKPIs: document.getElementById('setting-kpis').checked,
+                showFunnelChart: document.getElementById('setting-funnel').checked,
+                showRevenueChart: document.getElementById('setting-revenue').checked,
+                showInsights: document.getElementById('setting-insights').checked,
+                showQuality: document.getElementById('setting-quality').checked,
+                compactMode: document.getElementById('setting-compact').checked
+            };
+            updateDashboardSettings(newSettings);
+            updateDashboardVisibility();
+            setCurrentPage('dashboard');
+            document.getElementById('save-settings-btn').textContent = '✓ Saved!';
+            setTimeout(() => {
+                document.getElementById('save-settings-btn').textContent = 'Save Settings';
+            }, 2000);
+        });
+    }
+
+    // Setup reset handler
+    const resetBtn = document.getElementById('reset-settings-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            updateDashboardSettings({
+                showKPIs: true,
+                showFunnelChart: true,
+                showRevenueChart: true,
+                showInsights: true,
+                showQuality: true,
+                compactMode: true
+            });
+            renderDashboardSettings();
+        });
+    }
+}
+
+/**
+ * Update dashboard section visibility based on settings
+ */
+function updateDashboardVisibility() {
+    const settings = state.ui.dashboardSettings;
+    const kpiSection = document.querySelector('.kpi-section');
+    const chartsSection = document.querySelector('.charts-section');
+    const dashboardPage = document.getElementById('dashboard-page');
+
+    if (kpiSection) kpiSection.style.display = settings.showKPIs ? 'block' : 'none';
+    if (chartsSection) {
+        const isFunnelVisible = settings.showFunnelChart;
+        const isRevenueVisible = settings.showRevenueChart;
+        chartsSection.style.display = (isFunnelVisible || isRevenueVisible) ? 'block' : 'none';
+    }
+
+    // Apply compact mode class
+    if (dashboardPage) {
+        if (settings.compactMode) {
+            dashboardPage.classList.add('dashboard-compact');
+        } else {
+            dashboardPage.classList.remove('dashboard-compact');
+        }
+    }
 }
 
 /**
@@ -575,8 +728,19 @@ function renderLeadsTable() {
     document.getElementById('leads-table-container').style.display = 'block';
 
     const filtered = getFilteredTableData('leads');
-    const columns = getVisibleColumns('leads');
+    const columns = getVisibleColumns('leads', state.leads);
     const tableState = state.tableStates.leads;
+    const container = document.getElementById('leads-table-container');
+    const table = document.getElementById('leads-table');
+
+    // Apply compact styles if in compact mode on leads page  
+    if (state.ui.dashboardSettings.compactMode) {
+        container.classList.add('compact-wrapper');
+        table.classList.add('compact-table');
+    } else {
+        container.classList.remove('compact-wrapper');
+        table.classList.remove('compact-table');
+    }
 
     const { headerHTML, bodyHTML } = renderTable(
         filtered,
@@ -601,8 +765,19 @@ function renderDealsTable() {
     document.getElementById('deals-table-container').style.display = 'block';
 
     const filtered = getFilteredTableData('deals');
-    const columns = getVisibleColumns('deals');
+    const columns = getVisibleColumns('deals', state.deals);
     const tableState = state.tableStates.deals;
+    const container = document.getElementById('deals-table-container');
+    const table = document.getElementById('deals-table');
+
+    // Apply compact styles if in compact mode on deals page
+    if (state.ui.dashboardSettings.compactMode) {
+        container.classList.add('compact-wrapper');
+        table.classList.add('compact-table');
+    } else {
+        container.classList.remove('compact-wrapper');
+        table.classList.remove('compact-table');
+    }
 
     const { headerHTML, bodyHTML } = renderTable(
         filtered,
@@ -614,6 +789,108 @@ function renderDealsTable() {
 
     document.getElementById('deals-thead').innerHTML = headerHTML;
     document.getElementById('deals-tbody').innerHTML = bodyHTML;
+}
+
+function setupClosersSearch(renderFunc) {
+    const closersSearch = document.getElementById('closers-search');
+    if (!closersSearch) return;
+
+    closersSearch.addEventListener('input', (e) => {
+        setTableState('closers', { searchTerm: e.target.value });
+        renderFunc();
+    });
+}
+
+function renderClosersTable() {
+    const tbody = document.getElementById('closers-tbody');
+    const tableContainer = document.getElementById('closers-table-container');
+    const noData = document.getElementById('closers-no-data');
+
+    if (!tbody || !tableContainer || !noData) return;
+
+    if (!state.deals || state.deals.length === 0) {
+        noData.style.display = 'block';
+        tableContainer.style.display = 'none';
+        return;
+    }
+
+    const filteredDeals = filterDataset(state.deals, state.filters);
+    const closers = buildCloserStats(filteredDeals);
+
+    const searchTerm = state.tableStates.closers.searchTerm.trim().toLowerCase();
+    const visible = searchTerm
+        ? closers.filter(c => c.name.toLowerCase().includes(searchTerm))
+        : closers;
+
+    if (visible.length === 0) {
+        noData.style.display = 'block';
+        tableContainer.style.display = 'none';
+        return;
+    }
+
+    noData.style.display = 'none';
+    tableContainer.style.display = 'block';
+
+    tbody.innerHTML = visible.map(closer => {
+        return `
+            <tr>
+                <td>${closer.name}</td>
+                <td>${formatInteger(closer.deals)}</td>
+                <td>${formatInteger(closer.won)}</td>
+                <td>${formatPercent(closer.closeRate)}</td>
+                <td>${formatInteger(closer.active)}</td>
+                <td>${formatCurrency(closer.totalValue)}</td>
+                <td>${formatCurrency(closer.totalCollected)}</td>
+                <td>${formatCurrency(closer.averageSale)}</td>
+                <td>${formatPercent(closer.collectionRate)}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function buildCloserStats(deals) {
+    const buckets = new Map();
+
+    deals.forEach(deal => {
+        const ownerRaw = deal.deal_owner || deal.owner || 'Unassigned';
+        const owner = String(ownerRaw).trim() || 'Unassigned';
+
+        if (!buckets.has(owner)) {
+            buckets.set(owner, {
+                name: owner,
+                deals: 0,
+                won: 0,
+                active: 0,
+                totalValue: 0,
+                totalCollected: 0
+            });
+        }
+
+        const bucket = buckets.get(owner);
+        bucket.deals += 1;
+        if (deal._derived?.is_closed === true) bucket.won += 1;
+        if (deal._derived?.is_active === true) bucket.active += 1;
+        bucket.totalValue += deal._derived?.contract_value_numeric || 0;
+        bucket.totalCollected += deal._derived?.total_paid_numeric || 0;
+    });
+
+    const closers = Array.from(buckets.values()).map(bucket => {
+        const averageSale = bucket.deals > 0 ? bucket.totalValue / bucket.deals : 0;
+        const collectionRate = bucket.totalValue > 0 ? bucket.totalCollected / bucket.totalValue : 0;
+        const closeRate = bucket.deals > 0 ? bucket.won / bucket.deals : 0;
+
+        return {
+            ...bucket,
+            averageSale,
+            collectionRate,
+            closeRate
+        };
+    });
+
+    return closers.sort((a, b) => {
+        if (b.totalCollected !== a.totalCollected) return b.totalCollected - a.totalCollected;
+        return b.totalValue - a.totalValue;
+    });
 }
 
 /**

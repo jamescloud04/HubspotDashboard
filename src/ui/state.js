@@ -51,15 +51,28 @@ export const state = {
             currentSort: { field: null, direction: 'asc' },
             searchTerm: '',
             showDQOnly: false
+        },
+        closers: {
+            currentSort: { field: null, direction: 'desc' },
+            searchTerm: ''
         }
     },
 
     // UI state
     ui: {
-        currentPage: 'dashboard',  // 'dashboard', 'deals', or 'leads'
+        currentPage: 'dashboard',  // 'upload', 'dashboard', 'charts', 'insights', 'quality', 'deals', 'leads', or 'closers'
         selectedRow: null,
         insights: [],
-        qualityIssues: []
+        qualityIssues: [],
+        // Dashboard customization
+        dashboardSettings: {
+            showKPIs: true,
+            showFunnelChart: true,
+            showRevenueChart: true,
+            showInsights: true,
+            showQuality: true,
+            compactMode: true
+        }
     }
 };
 
@@ -155,6 +168,7 @@ export function resetFilters() {
     state.tableStates.deals.showDQOnly = false;
     state.tableStates.leads.searchTerm = '';
     state.tableStates.deals.searchTerm = '';
+    state.tableStates.closers.searchTerm = '';
     notifyListeners();
 }
 
@@ -231,10 +245,14 @@ export function clearAllData() {
             currentSort: { field: null, direction: 'asc' },
             searchTerm: '',
             showDQOnly: false
+        },
+        closers: {
+            currentSort: { field: null, direction: 'desc' },
+            searchTerm: ''
         }
     };
     state.ui = {
-        activeTab: 'leads-table',
+        currentPage: 'dashboard',
         selectedRow: null,
         insights: [],
         qualityIssues: []
@@ -248,11 +266,34 @@ export function clearAllData() {
 export function getState() {
     return state;
 }
+
+/**
+ * Update dashboard settings and save to localStorage
+ */
+export function updateDashboardSettings(settings) {
+    state.ui.dashboardSettings = { ...state.ui.dashboardSettings, ...settings };
+    localStorage.setItem('dashboardSettings', JSON.stringify(state.ui.dashboardSettings));
+    notifyListeners();
+}
+
+/**
+ * Load dashboard settings from localStorage
+ */
+export function loadDashboardSettings() {
+    try {
+        const saved = localStorage.getItem('dashboardSettings');
+        if (saved) {
+            state.ui.dashboardSettings = { ...state.ui.dashboardSettings, ...JSON.parse(saved) };
+        }
+    } catch (e) {
+        console.warn('Failed to load dashboard settings:', e);
+    }
+}
 /**
  * Set current page
  */
 export function setCurrentPage(page) {
-    if (['dashboard', 'deals', 'leads'].includes(page)) {
+    if (['upload', 'dashboard', 'charts', 'insights', 'quality', 'deals', 'leads', 'closers', 'settings'].includes(page)) {
         state.ui.currentPage = page;
         notifyListeners();
     }

@@ -23,6 +23,7 @@ export function computeAllKPIs(leads, deals, filters = {}) {
                 kpiValues['deals_total_collected'] = computeTotalCollected(filteredDeals);
                 kpiValues['deals_average_value'] = computeAverageValue(filteredDeals);
                 kpiValues['deals_collection_rate'] = computeCollectionRate(filteredDeals);
+                kpiValues['deals_closed_count'] = computeClosedDealsCount(filteredDeals);
             } catch (e) {
                 console.error('Error computing deal KPIs:', e);
             }
@@ -35,11 +36,14 @@ export function computeAllKPIs(leads, deals, filters = {}) {
 
                 kpiValues['leads_total'] = computeLeadsTotal(filteredLeads);
                 kpiValues['leads_booked_calls'] = computeBookedCalls(filteredLeads);
+                kpiValues['leads_first_call_shown_count'] = computeFirstCallShownCount(filteredLeads);
+                kpiValues['leads_qualified_count'] = computeQualifiedCount(filteredLeads);
                 kpiValues['leads_first_call_show_rate'] = computeFirstCallShowRate(filteredLeads);
                 kpiValues['leads_dq_rate'] = computeDQRate(filteredLeads);
                 kpiValues['leads_dq_before_call'] = computeDQBeforeCall(filteredLeads);
                 kpiValues['leads_dq_on_call'] = computeDQOnCall(filteredLeads);
                 kpiValues['leads_qualification_rate'] = computeQualificationRate(filteredLeads);
+                kpiValues['leads_show_to_qualified_rate'] = computeShowToQualifiedRate(filteredLeads);
                 kpiValues['leads_second_call_show_rate'] = computeSecondCallShowRate(filteredLeads);
                 kpiValues['leads_reschedule_count'] = computeRescheduleCount(filteredLeads);
             } catch (e) {
@@ -57,6 +61,9 @@ export function computeAllKPIs(leads, deals, filters = {}) {
                 kpiValues['cross_cash_per_lead'] = computeCashPerLead(filteredLeads, filteredDeals);
                 kpiValues['cross_contract_value_per_lead'] = computeContractValuePerLead(filteredLeads, filteredDeals);
                 kpiValues['cross_cash_per_booked_call'] = computeCashPerBookedCall(filteredLeads, filteredDeals);
+                kpiValues['cross_contract_value_per_booked_call'] = computeContractValuePerBookedCall(filteredLeads, filteredDeals);
+                kpiValues['cross_qualified_close_rate'] = computeQualifiedCloseRate(filteredLeads, filteredDeals);
+                kpiValues['cross_lead_to_close'] = computeLeadToClose(filteredLeads, filteredDeals);
             } catch (e) {
                 console.error('Error computing cross KPIs:', e);
             }
@@ -158,6 +165,11 @@ function computeBookedCalls(leads) {
     return { value: booked, denominator: null, numerator: booked };
 }
 
+function computeFirstCallShownCount(leads) {
+    const shown = leads.filter(l => l._derived?.first_call_shown === true).length;
+    return { value: shown, denominator: leads.length, numerator: shown };
+}
+
 function computeFirstCallShowRate(leads) {
     const shown = leads.filter(l => l._derived?.first_call_shown === true).length;
     const booked = leads.reduce((sum, l) => sum + (l._derived?.booked_calls_count || 0), 0);
@@ -200,6 +212,20 @@ function computeQualificationRate(leads) {
     return { value: rate, denominator: booked, numerator: qualified };
 }
 
+function computeQualifiedCount(leads) {
+    const qualified = leads.filter(l => l._derived?.is_qualified === true).length;
+    return { value: qualified, denominator: leads.length, numerator: qualified };
+}
+
+function computeShowToQualifiedRate(leads) {
+    const shown = leads.filter(l => l._derived?.first_call_shown === true).length;
+    const qualified = leads.filter(l => l._derived?.is_qualified === true).length;
+
+    if (shown === 0) return { value: 0, denominator: 0, numerator: qualified };
+    const rate = qualified / shown;
+    return { value: rate, denominator: shown, numerator: qualified };
+}
+
 function computeSecondCallShowRate(leads) {
     const shown = leads.filter(l => l._derived?.second_call_shown === true).length;
     const booked = leads.filter(l => l._derived?.second_call_booked === true).length;
@@ -225,6 +251,11 @@ function computeCloseRate(leads, deals) {
     return { value: rate, denominator: shown, numerator: closed };
 }
 
+function computeClosedDealsCount(deals) {
+    const closed = deals.filter(d => d._derived?.is_closed === true).length;
+    return { value: closed, denominator: deals.length, numerator: closed };
+}
+
 function computeCashPerLead(leads, deals) {
     if (leads.length === 0) return { value: 0, denominator: 0, numerator: 0 };
     const totalCash = deals.reduce((sum, d) => sum + (d._derived?.total_paid_numeric || 0), 0);
@@ -242,6 +273,28 @@ function computeCashPerBookedCall(leads, deals) {
     if (booked === 0) return { value: 0, denominator: 0, numerator: 0 };
     const totalCash = deals.reduce((sum, d) => sum + (d._derived?.total_paid_numeric || 0), 0);
     return { value: totalCash / booked, denominator: booked, numerator: totalCash };
+}
+
+function computeContractValuePerBookedCall(leads, deals) {
+    const booked = leads.reduce((sum, l) => sum + (l._derived?.booked_calls_count || 0), 0);
+    if (booked === 0) return { value: 0, denominator: 0, numerator: 0 };
+    const totalValue = deals.reduce((sum, d) => sum + (d._derived?.contract_value_numeric || 0), 0);
+    return { value: totalValue / booked, denominator: booked, numerator: totalValue };
+}
+
+function computeQualifiedCloseRate(leads, deals) {
+    const qualified = leads.filter(l => l._derived?.is_qualified === true).length;
+    const closed = deals.filter(d => d._derived?.is_closed === true).length;
+
+    if (qualified === 0) return { value: 0, denominator: 0, numerator: closed };
+    const rate = closed / qualified;
+    return { value: rate, denominator: qualified, numerator: closed };
+}
+
+function computeLeadToClose(leads, deals) {
+    const closed = deals.filter(d => d._derived?.is_closed === true).length;
+    if (closed === 0) return { value: 0, denominator: 0, numerator: leads.length };
+    return { value: leads.length / closed, denominator: closed, numerator: leads.length };
 }
 
 /**

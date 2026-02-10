@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>James Cloud | Portfolio</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/design-system.css" />
+  <link rel="stylesheet" href="assets/css/retro-enhancements.css" />
+</head>
+<body class="home-page">
+  <div class="taskbar">
+    <div class="taskbar-start">
+      <button class="start-btn" title="Start Menu">
+        <span class="start-logo">◉</span>
+        Start
+      </button>
+    </div>
+    <div class="taskbar-center">
+      <div class="taskbar-apps" id="taskbar-apps"></div>
+    </div>
+    <div class="taskbar-system">
+      <div class="system-clock">
+        <span id="system-time">12:00 PM</span>
+        <span id="system-date">Feb 4, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="start-menu" id="start-menu" aria-hidden="true">
+    <div class="start-menu-header">
+      <div class="start-avatar">JC</div>
+      <div class="start-user">
+        <span class="start-user-name">James Cloud</span>
+        <span class="start-user-sub">Software Engineer</span>
+      </div>
+    </div>
+    <div class="start-menu-body">
+      <div class="start-menu-section">
+        <div class="start-section-title">Quick Access</div>
+        <button class="start-item" id="start-open-portfolio">Portfolio</button>
+        <button class="start-item" id="start-open-projects">Projects</button>
+        <button class="start-item" id="start-open-contact">Contact</button>
+      </div>
+      <div class="start-menu-section">
+        <div class="start-section-title">Resources</div>
+        <a href="jamescloud_resume.pdf" class="start-item" download>Download Resume</a>
+        <a href="https://github.com/jamescloud04" class="start-item" target="_blank" rel="noreferrer">View on GitHub</a>
+        <a href="https://linkedin.com/in/james-cloud" class="start-item" target="_blank" rel="noreferrer">Connect on LinkedIn</a>
+      </div>
+      <div class="start-menu-section">
+        <button class="start-item" id="toggle-widgets">Hide Widgets</button>
+      </div>
+    </div>
+    <div class="start-menu-footer">
+      <span class="start-footer-text">Made by James Cloud</span>
+    </div>
+  </div>
+
+  <main class="container">
+    <div class="main-column">
+      <div class="content window window-shell" data-window="portfolio" data-window-label="Portfolio" data-stack="true">
+        <div class="window-titlebar">
+          <span class="window-title">Portfolio</span>
+          <div class="window-actions">
+            <button class="window-action modal-close" id="portfolio-close" title="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="portfolio-layout">
+            <div class="portfolio-identity">
+              <div class="portfolio-header">
+                <div class="portfolio-badge" aria-hidden="true">JC</div>
+                <div class="portfolio-intro">
+                  <h1>James Cloud</h1>
+                  <p class="subtitle">Software engineer</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="portfolio-details">
+              <section id="about" class="about-section">
+                <p>Computer Science student @ Arizona State University</p>
+              </section>
+              <div class="portfolio-tiles">
+                <div class="tile-card">
+                  <div class="tile-label">Interests</div>
+                  <div class="tile-value">Networking</div>
+                  <div class="tile-meta">Protocols · Systems · Security</div>
+                </div>
+              </div>
+              <div class="portfolio-strip">
+                <span class="strip-chip">Based in Tempe, AZ</span>
+              </div>
+            </div>
+            
+            <div class="portfolio-sidebar">
+              <div class="xp-panel">
+                <h3>Common Tasks</h3>
+                <button class="xp-action" id="view-resume-cta">View Resume</button>
+              </div>
+              <div class="xp-divider"></div>
+              <div class="xp-panel">
+                <h3>Details</h3>
+                <div class="detail-item">
+                  <span class="detail-label">Education:</span>
+                  <span class="detail-value">ASU</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="window window-resume window-shell window-hidden" id="resume-window" data-window="resume" data-window-label="Resume" data-no-taskbar="true" data-stack="true">
+        <div class="window-titlebar">
+          <span class="window-title">Resume</span>
+          <div class="window-actions">
+            <button class="window-action modal-close" id="resume-close" title="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body resume-body">
+          <iframe id="resume-embed" src="jamescloud_resume.pdf" type="application/pdf"></iframe>
+          <div class="pdf-fallback" style="display: none; padding: 2rem; text-align: center;">
+            <p>Unable to display PDF on this device.</p>
+            <a href="jamescloud_resume.pdf" class="btn" download style="display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background: var(--accent); color: white; text-decoration: none; border-radius: 4px;">Download Resume PDF</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="window window-contact window-shell" id="contact-window" data-window="contact" data-window-label="Contact" data-stack="true">
+        <div class="window-titlebar">
+          <span class="window-title">Get in Touch</span>
+          <div class="window-actions">
+            <button class="window-action modal-close" id="contact-close" title="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="contact-info">
+            <p><strong>Email:</strong> <span class="email-link" data-email="jcloud3004@gmail.com" title="Click to copy">jcloud3004 [at] gmail [dot] com</span></p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/jamescloud04" target="_blank" rel="noreferrer">jamescloud04</a></p>
+            <p><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/james-cloud" target="_blank" rel="noreferrer">james-cloud</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="window window-projects window-shell" id="projects-window" data-window="projects" data-window-label="Projects" data-stack="true">
+        <div class="window-titlebar">
+          <span class="window-title">My Projects</span>
+          <div class="window-actions">
+            <button class="window-action modal-close" id="projects-close" title="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div id="repos-list" class="repos-list">
+            <p class="loading">Loading repositories...</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="widgets" id="widgets-container">
+      <div class="widget widget-clock window-shell widget-shell" data-window="clock" data-window-label="Clock">
+        <div class="window-titlebar">
+          <span class="window-title">System Clock</span>
+        </div>
+        <div class="window-body widget-body">
+          <div class="widget-time" id="widget-time">12:00 PM</div>
+          <div class="widget-date" id="widget-date">Feb 4, 2026</div>
+        </div>
+      </div>
+      <div class="widget widget-calendar window-shell widget-shell" data-window="calendar" data-window-label="Calendar">
+        <div class="window-titlebar">
+          <span class="window-title">Calendar</span>
+        </div>
+        <div class="window-body widget-body">
+          <div id="calendar-widget" style="font-size: 11px; line-height: 1.4;"></div>
+        </div>
+      </div>
+      <div class="widget widget-weather window-shell widget-shell" data-window="weather" data-window-label="Weather">
+        <div class="window-titlebar">
+          <span class="window-title">Weather</span>
+        </div>
+        <div class="window-body widget-body">
+          <div style="text-align: center; padding: 8px;">
+            <div style="font-size: 28px; font-weight: bold;">72°F</div>
+            <div style="font-size: 11px; margin-top: 4px;">Partly Cloudy</div>
+            <div style="font-size: 10px; margin-top: 4px; opacity: 0.8;">Phoenix, AZ</div>
+          </div>
+        </div>
+      </div>
+      <div class="widget widget-music window-shell widget-shell" data-window="music" data-window-label="Apple Music">
+        <div class="window-titlebar">
+          <span class="window-title">Apple Music</span>
+        </div>
+        <div class="window-body widget-body music-widget">
+          <div class="music-header">
+            <span class="music-badge">♪</span>
+            <div class="music-meta">
+              <div class="music-title">Apple Music Profile</div>
+              <div class="music-artist">Follow what I’m listening to</div>
+            </div>
+          </div>
+          <div class="music-actions">
+            <a class="btn" id="music-connect-btn" href="https://music.apple.com/profile/jamescloud" target="_blank" rel="noreferrer">Open Profile</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="assets/js/app-core.js"></script>
+  <script src="assets/js/ui-controls.js"></script>
+  <script src="assets/js/clock.js"></script>
+  <script src="assets/js/window-launchers.js"></script>
+  <script src="assets/js/projects.js"></script>
+  <script src="assets/js/start-menu.js"></script>
+  <script src="assets/js/taskbar.js"></script>
+  <script src="assets/js/window-actions.js"></script>
+  <script src="assets/js/window-focus.js"></script>
+  <script src="assets/js/widgets.js"></script>
+  <script src="assets/js/calendar.js"></script>
+  <script src="assets/js/widgets-toggle.js"></script>
+  <script src="assets/js/email-copy.js"></script>
+  <script src="assets/js/resume.js"></script>
+</body>
+</html>
