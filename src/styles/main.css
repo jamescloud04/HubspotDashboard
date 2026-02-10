@@ -61,10 +61,12 @@ h3 {
 
 body {
     font-family: "Segoe UI", "Tahoma", "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg);
+    background: linear-gradient(180deg, #a8c5dd 0%, #b8d0e6 15%, #c8d8f0 30%, #c0c0c0 50%, #b0b0b0 75%, #8a9a9a 100%);
+    background-attachment: fixed;
     color: var(--text);
     line-height: 1.5;
-    padding-bottom: 0;
+    padding-bottom: 40px;
+    min-height: 100vh;
 }
 
 /* Retro Scrollbars */
@@ -103,19 +105,33 @@ body {
     display: none;
 }
 
+/* Main App Container */
+#app {
+    min-height: calc(100vh - 40px);
+    padding: 12px;
+}
+
+#dashboard-content {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
 /* Page Content Sections */
 .page-content {
     width: 100%;
-    padding: 0;
+    padding: 12px;
     margin: 0;
+    min-height: calc(100vh - 80px);
 }
 
 .full-page-table-section {
-    margin: 0.75rem;
+    margin: 0;
     padding: 0.75rem;
-    background: var(--light);
-    border: 1px solid var(--win-border-dark);
+    background: var(--win-bg);
+    border: 2px solid;
+    border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
     box-shadow: var(--shadow-lg);
+    border-radius: 3px;
 }
 
 .full-page-table-section h2 {
@@ -133,7 +149,7 @@ section {
 section h2 {
     font-size: 1.1rem;
     margin-bottom: 0.75rem;
-    color: var(--text);
+    color: var(--win-titlebar-text);
     text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
 
@@ -156,6 +172,14 @@ section h2 {
 /* Upload Section */
 .upload-container h2 {
     margin-bottom: 1.5rem;
+}
+
+.upload-status {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 2px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
 }
 
 .upload-grid {
@@ -208,6 +232,26 @@ section h2 {
     font-size: 0.85rem;
     color: var(--muted);
     margin: 0;
+}
+
+.file-status {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.file-status.success {
+    background: rgba(40, 167, 69, 0.2);
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+.file-status.error {
+    background: rgba(220, 53, 69, 0.2);
+    color: #721c24;
+    border: 1px solid #dc3545;
 }
 
 /* Filters */
@@ -306,6 +350,24 @@ button.primary:active:not(.start-button):not(.taskbar-button),
     background: linear-gradient(180deg, #004488 0%, #003d73 100%);
 }
 
+.btn-small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+}
+
+.btn-secondary {
+    background: linear-gradient(180deg, #e0e0e0 0%, #c0c0c0 100%);
+    color: var(--text);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 100%);
+}
+
+.btn-secondary:active {
+    background: linear-gradient(180deg, #b8b8b8 0%, #d8d8d8 100%);
+}
+
 /* KPI Grid */
 .kpi-grid {
     display: grid;
@@ -385,15 +447,30 @@ button.primary:active:not(.start-button):not(.taskbar-button),
     margin-bottom: 0;
 }
 
-.chart-container {
+.chart-card {
     background: var(--win-bg);
     padding: 0.75rem;
     border: 2px solid;
     border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
     border-radius: 3px;
     box-shadow: var(--shadow);
+}
+
+.chart-card h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--win-titlebar-text);
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.chart-container {
+    background: #fff;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
     position: relative;
-    min-height: 350px;
+    min-height: 300px;
 }
 
 .chart-title {
@@ -451,6 +528,7 @@ thead th {
     cursor: pointer;
     user-select: none;
     font-size: 0.8rem;
+}
 
 thead th:hover {
     background: linear-gradient(180deg, #e6f0ff 0%, #d9e8ff 100%);
@@ -469,6 +547,74 @@ tbody td {
     padding: 0.5rem;
     border-right: 1px solid rgba(0, 0, 0, 0.05);
     font-size: 0.8rem;
+}
+
+/* Table Controls */
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: 2px solid;
+    border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+    background: #fff;
+    border-radius: 2px;
+    font-family: inherit;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
+    color: var(--text);
+    font-size: 0.85rem;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary) var(--win-border-light) var(--win-border-light) var(--primary);
+}
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.table-actions label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.no-data-msg {
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px dashed var(--border);
+    border-radius: 2px;
+    margin-top: 1rem;
+}
 
 /* Insights */
 .insights-grid {
@@ -503,9 +649,9 @@ tbody td {
 }
 
 /* Quality Report */
-.quality-issues {
+.quality-container {
     background: var(--win-bg);
-    padding: 1.5rem;
+    padding: 1rem;
     border: 2px solid;
     border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
     border-radius: 3px;
@@ -525,22 +671,24 @@ tbody td {
     border: 1px solid var(--border);
     border-radius: 2px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.quality-stat-label {
+.quality-label {
     font-size: 0.85rem;
     color: var(--muted);
-    margin-bottom: 0.5rem;
 }
 
-.quality-stat-value {
+.quality-value {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--primary);
 }
 
-.quality-issues-list {
-    max-height: 300px;
+.quality-details {
+    max-height: 400px;
     overflow-y: auto;
 }
 
@@ -704,11 +852,11 @@ tbody td {
 
 /* Taskbar - Windows XP Authentic Style */
 .taskbar {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 30px !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
     background: linear-gradient(180deg, 
         #3969d6 0%, 
         #3969d6 3%, 
@@ -716,14 +864,14 @@ tbody td {
         #1941a5 50%, 
         #1941a5 97%, 
         #16368d 100%
-    ) !important;
-    border-top: 1px solid #5c8ae6 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 3px 2px 3px 0 !important;
-    z-index: 10000 !important;
-    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.3) !important;
+    );
+    border-top: 1px solid #5c8ae6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 2px 3px 0;
+    z-index: 10000;
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .taskbar-start {
@@ -739,37 +887,37 @@ tbody td {
         #3c8d3a 50%, 
         #1f6a1e 92%, 
         #1f6a1e 100%
-    ) !important;
-    border: 1px solid !important;
-    border-color: #7dd679 #1a5c18 #1a5c18 #7dd679 !important;
-    padding: 2px 12px 2px 6px !important;
+    );
+    border: 1px solid;
+    border-color: #7dd679 #1a5c18 #1a5c18 #7dd679;
+    padding: 2px 12px 2px 6px;
     cursor: pointer;
-    font-weight: bold !important;
-    font-size: 11px !important;
-    font-family: "Tahoma", "Segoe UI", sans-serif !important;
-    color: #fff !important;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5) !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
+    font-weight: bold;
+    font-size: 11px;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 4px;
     box-shadow: 
         inset 1px 1px 0 rgba(255, 255, 255, 0.4), 
         inset -1px -1px 0 rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-    transition: all 0.05s !important;
-    border-radius: 0 8px 8px 0 !important;
-    height: 24px !important;
-    min-width: 54px !important;
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    transition: all 0.05s;
+    border-radius: 0 8px 8px 0;
+    height: 24px;
+    min-width: 54px;
 }
 
 .taskbar .start-button:active {
     background: linear-gradient(180deg, 
         #3c8d3a 0%, 
         #5eac56 100%
-    ) !important;
+    );
     box-shadow: 
         inset 1px 1px 2px rgba(0, 0, 0, 0.4),
-        inset -1px -1px 0 rgba(255, 255, 255, 0.2) !important;
+        inset -1px -1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .taskbar .start-button:hover {
@@ -780,11 +928,11 @@ tbody td {
         #4a9d48 50%, 
         #2a7a28 92%, 
         #2a7a28 100%
-    ) !important;
+    );
     box-shadow: 
         inset 1px 1px 0 rgba(255, 255, 255, 0.5), 
         inset -1px -1px 0 rgba(0, 0, 0, 0.5),
-        0 0 8px rgba(255, 255, 255, 0.3) !important;
+        0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 .start-icon {
@@ -817,33 +965,33 @@ tbody td {
 }
 
 .taskbar .taskbar-button {
-    height: 24px !important;
-    padding: 1px 10px !important;
-    border: 1px solid !important;
-    border-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.2) !important;
+    height: 24px;
+    padding: 1px 10px;
+    border: 1px solid;
+    border-color: rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.2);
     background: linear-gradient(180deg, 
         rgba(56, 147, 255, 0.3) 0%, 
         rgba(56, 147, 255, 0.15) 50%, 
         rgba(0, 51, 153, 0.2) 100%
-    ) !important;
-    font-size: 11px !important;
-    font-family: "Tahoma", "Segoe UI", sans-serif !important;
-    display: flex !important;
-    align-items: center !important;
-    cursor: pointer !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    );
+    font-size: 11px;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     box-shadow: 
         inset 0 1px 0 rgba(255, 255, 255, 0.15),
-        0 1px 2px rgba(0, 0, 0, 0.2) !important;
-    color: #fff !important;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5) !important;
-    text-decoration: none !important;
-    transition: all 0.1s !important;
-    border-radius: 3px !important;
-    min-width: 44px !important;
-    max-width: 160px !important;
+        0 1px 2px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    text-decoration: none;
+    transition: all 0.1s;
+    border-radius: 3px;
+    min-width: 44px;
+    max-width: 160px;
 }
 
 .taskbar .taskbar-button:hover {
@@ -851,12 +999,12 @@ tbody td {
         rgba(97, 172, 255, 0.5) 0%, 
         rgba(97, 172, 255, 0.3) 50%, 
         rgba(41, 121, 255, 0.4) 100%
-    ) !important;
-    border-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.5) rgba(255, 255, 255, 0.3) !important;
+    );
+    border-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.4) rgba(0, 0, 0, 0.5) rgba(255, 255, 255, 0.3);
     box-shadow: 
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         0 0 6px rgba(120, 180, 255, 0.4),
-        0 1px 3px rgba(0, 0, 0, 0.3) !important;
+        0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .taskbar .taskbar-button:active,
@@ -865,12 +1013,12 @@ tbody td {
         rgba(18, 89, 194, 0.6) 0%, 
         rgba(41, 121, 255, 0.4) 50%, 
         rgba(97, 172, 255, 0.3) 100%
-    ) !important;
-    border-color: rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.4) !important;
+    );
+    border-color: rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.2) rgba(0, 0, 0, 0.4);
     box-shadow: 
         inset 0 1px 3px rgba(0, 0, 0, 0.4),
         inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-        0 0 4px rgba(80, 140, 255, 0.5) !important;
+        0 0 4px rgba(80, 140, 255, 0.5);
 }
 
 .taskbar-tray {
@@ -923,7 +1071,7 @@ tbody td {
 /* Start Menu */
 .start-menu {
     position: fixed;
-    bottom: 28px;
+    bottom: 30px;
     left: 0;
     width: 280px;
     background: linear-gradient(90deg, #dfe9f6 0%, #c8d8ef 100%);
@@ -934,7 +1082,7 @@ tbody td {
         inset 1px 1px 0 rgba(255, 255, 255, 0.8),
         inset -1px -1px 0 rgba(0, 0, 0, 0.25),
         4px 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1001;
+    z-index: 10001;
     overflow: hidden;
     animation: slideUp 0.2s ease-out;
 }
@@ -1035,7 +1183,7 @@ tbody td {
 /* Notification Container */
 .notification-container {
     position: fixed;
-    bottom: 32px;
+    bottom: 40px;
     right: 8px;
     z-index: 999;
     display: flex;
@@ -1081,11 +1229,6 @@ tbody td {
 
 .notification.info {
     border-color: #0066cc #003366 #003366 #0066cc;
-}
-
-/* Main Content Margin (to avoid taskbar overlap) */
-body {
-    padding-bottom: 34px;
 }
 
 /* Modal Window Chrome */
