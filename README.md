@@ -11,8 +11,8 @@
 
 #### Leads CSV
 - `lead_id` - Unique lead identifier
-- `lead_name` - Contact name
 - `email` - Email address
+- `lead_name` - Contact name (or `first_name`/`last_name`)
 
 ### Optional Columns
 
@@ -187,6 +187,12 @@ export const KPI_REGISTRY = {
 };
 ```
 
+### Navigation Model
+
+- The app uses query-based client routes (`?page=upload`, `?page=dashboard`, `?page=charts`, etc.) so each taskbar window is a real client-side page state.
+- Browser back/forward works across taskbar windows.
+- `Settings` is accessed from the Start menu.
+
 2. Add compute function to `src/kpis/compute.js`:
 ```javascript
 function computeMyCustomKPI(leads, deals) {
@@ -261,7 +267,7 @@ assert(coerceValue('$1,000', 'contract_value') === 1000);
 ## Known Limitations
 
 1. **No backend storage**: Data must be re-uploaded each session (it's not saved)
-2. **CSV only**: Currently doesn't support Excel, JSON, or API imports
+2. **API import not built-in yet**: Direct HubSpot sync still requires a backend/OAuth flow
 3. **No real-time sync**: Changes in source systems require manual re-upload
 4. **Joining requires email/contact field**: Cross-KPIs only work if leads and deals share an email or contact ID field
 5. **Limited customization**: Insights and thresholds are hardcoded (can be extended)
@@ -316,12 +322,12 @@ Found a bug? Have a feature request?
 - [ ] Custom metric builder
 - [ ] Pipeline forecast modeling
 - [ ] Rep/team performance breakdown
-- [ ] Excel import support
+- [x] Excel import support (`.csv`, `.xlsx`, `.xls`)
 - [ ] Dark mode
 - [ ] Mobile app version
 - [ ] Historical tracking (localStorage-based)
 - [ ] Predictive insights (ML-based anomaly detection)
-- [ ] Integration with HubSpot API (OAuth-based)
+- [ ] Integration with HubSpot API (OAuth-based production connector)
 
 ---
 

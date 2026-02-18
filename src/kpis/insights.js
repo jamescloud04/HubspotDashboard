@@ -1,5 +1,5 @@
 /**
- * Executive Insights Generation
+ * Insights Generation
  * Analyzes data to generate meaningful business insights
  */
 
@@ -63,7 +63,7 @@ function generateLeadFunnelInsights(leads, kpiValues) {
         insights.push({
             type: 'danger',
             title: 'High Disqualification Rate',
-            text: `${(dqRate.value * 100).toFixed(1)}% of booked calls result in disqualification. Consider improving qualification process.`,
+            text: `${(dqRate.value * 100).toFixed(1)}% of booked calls result in disqualification.`,
             metric: `${Math.round(dqBefore + dqOnCall)} / ${booked}`
         });
     }
@@ -74,7 +74,7 @@ function generateLeadFunnelInsights(leads, kpiValues) {
         insights.push({
             type: 'warning',
             title: 'Low Qualification Rate',
-            text: `Only ${(qualRate.value * 100).toFixed(1)}% of booked calls result in qualified prospects. Quality or targeting may need improvement.`,
+            text: `Only ${(qualRate.value * 100).toFixed(1)}% of booked calls result in qualified prospects.`,
             metric: `${qualified} / ${booked}`
         });
     }
@@ -84,7 +84,7 @@ function generateLeadFunnelInsights(leads, kpiValues) {
         insights.push({
             type: 'success',
             title: 'Excellent First Call Show Rate',
-            text: `${(showRate.value * 100).toFixed(1)}% of booked calls are attended — excellent scheduling and reminder effectiveness.`,
+            text: `${(showRate.value * 100).toFixed(1)}% of booked calls are attended.`,
             metric: `${(showRate.value * 100).toFixed(1)}%`
         });
     }
@@ -121,7 +121,7 @@ function generateDealInsights(deals, kpiValues) {
             insights.push({
                 type: 'warning',
                 title: 'Revenue Concentration Risk',
-                text: `Top 10% of deals represent ${(concentration * 100).toFixed(1)}% of total revenue. High concentration creates revenue risk.`,
+                text: `Top 10% of deals represent ${(concentration * 100).toFixed(1)}% of total revenue.`,
                 metric: `${(concentration * 100).toFixed(1)}%`
             });
         }
@@ -135,7 +135,7 @@ function generateDealInsights(deals, kpiValues) {
             insights.push({
                 type: 'success',
                 title: 'Premium Deals Present',
-                text: `${highValue} deals exceed 2x the average deal value, indicating successful upsells or premium clients.`,
+                text: `${highValue} deals exceed 2x the average deal value.`,
                 metric: `${highValue} deals`
             });
         }
@@ -154,14 +154,14 @@ function generateCrossInsights(leads, deals, kpiValues) {
             insights.push({
                 type: 'success',
                 title: 'Strong Close Rate',
-                text: `${(closeRate.value * 100).toFixed(1)}% of shown first calls result in closed deals. Excellent sales conversion.`,
+                text: `${(closeRate.value * 100).toFixed(1)}% of shown first calls result in closed deals.`,
                 metric: `${(closeRate.value * 100).toFixed(1)}%`
             });
         } else if (closeRate.value < 0.2) {
             insights.push({
                 type: 'danger',
                 title: 'Low Close Rate',
-                text: `Only ${(closeRate.value * 100).toFixed(1)}% of shown first calls result in closed deals. Sales process may need review.`,
+                text: `Only ${(closeRate.value * 100).toFixed(1)}% of shown first calls result in closed deals.`,
                 metric: `${(closeRate.value * 100).toFixed(1)}%`
             });
         }
@@ -203,7 +203,7 @@ function generateDataQualityInsights(leads, deals) {
                 insights.push({
                     type: 'warning',
                     title: 'Lead Data Quality Issues',
-                    text: `${(issueRate * 100).toFixed(1)}% of leads have missing or invalid critical fields. Clean data before analysis.`,
+                    text: `${(issueRate * 100).toFixed(1)}% of leads have missing or invalid critical fields.`,
                     metric: `${leadIssues} / ${leads.length}`
                 });
             }
@@ -221,7 +221,7 @@ function generateDataQualityInsights(leads, deals) {
                 insights.push({
                     type: 'warning',
                     title: 'Deal Data Quality Issues',
-                    text: `${(issueRate * 100).toFixed(1)}% of deals have missing or invalid critical fields. Data validation needed.`,
+                    text: `${(issueRate * 100).toFixed(1)}% of deals have missing or invalid critical fields.`,
                     metric: `${dealIssues} / ${deals.length}`
                 });
             }
@@ -284,3 +284,4 @@ export function detectAnomalies(leads, deals) {
 
     return anomalies;
 }
+

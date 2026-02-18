@@ -306,20 +306,14 @@ function handleKPIDrilldown(kpiId, renderFunc) {
  */
 function setupDetailModal() {
     const modal = document.getElementById('detail-modal');
-    const closeBtn = document.getElementById('modal-close');
-    const closeBtn2 = modal.querySelector('.modal-close');
+    if (!modal) return;
 
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
+    const closeButtons = modal.querySelectorAll('.modal-close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
             modal.style.display = 'none';
         });
-    }
-
-    if (closeBtn2) {
-        closeBtn2.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
+    });
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -386,87 +380,29 @@ export function populateFilterControls() {
 
     // Lead source
     const sourceSelect = document.getElementById('lead-source-filter');
-    if (sourceSelect && controls.sources.length > 0) {
+    if (sourceSelect) {
+        sourceSelect.innerHTML = '<option value="">All Sources</option>';
         controls.sources.forEach(source => {
             const option = document.createElement('option');
             option.value = source.toLowerCase();
             option.textContent = source;
             sourceSelect.appendChild(option);
         });
+        sourceSelect.value = state.filters.leadSource || '';
     }
 
     // Deal status
     const statusSelect = document.getElementById('deal-status-filter');
-    if (statusSelect && controls.statuses.length > 0) {
+    if (statusSelect) {
+        statusSelect.innerHTML = '<option value="">All Statuses</option>';
         controls.statuses.forEach(status => {
             const option = document.createElement('option');
             option.value = status;
             option.textContent = status;
             statusSelect.appendChild(option);
         });
+        statusSelect.value = state.filters.dealStatus || '';
     }
-}
-
-/**
- * Setup Taskbar & Start Menu (Retro Windows)
- */
-export function setupTaskbar() {
-    const startMenuBtn = document.getElementById('start-menu-btn');
-    const startMenu = document.getElementById('start-menu');
-    
-    if (!startMenuBtn || !startMenu) return;
-    
-    // Toggle Start Menu
-    startMenuBtn.addEventListener('click', () => {
-        const isVisible = startMenu.style.display !== 'none';
-        startMenu.style.display = isVisible ? 'none' : 'block';
-    });
-    
-    // Close Start Menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.start-button') && !e.target.closest('.start-menu')) {
-            startMenu.style.display = 'none';
-        }
-    });
-    
-    // Start Menu Item Actions
-    const menuItems = document.querySelectorAll('.start-menu-item');
-    menuItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const text = item.textContent.trim();
-            
-            if (text.includes('Dashboard')) {
-                startMenu.style.display = 'none';
-                // Focus the dashboard
-                document.getElementById('dashboard-content')?.scrollIntoView({ behavior: 'smooth' });
-            } else if (text.includes('Shut Down')) {
-                showNotification('System ready to shutdown', 'info');
-            } else if (text.includes('Settings')) {
-                showNotification('Settings dialog would open here', 'info');
-            } else if (text.includes('Help')) {
-                window.open('https://github.com/yourusername/HubspotDashboard#readme', '_blank');
-            }
-            
-            startMenu.style.display = 'none';
-        });
-    });
-    
-    // Update system clock
-    updateSystemClock();
-    setInterval(updateSystemClock, 1000);
-}
-
-/**
- * Update the system clock in the taskbar
- */
-function updateSystemClock() {
-    const clockElement = document.querySelector('.system-clock');
-    if (!clockElement) return;
-    
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    clockElement.textContent = `${hours}:${minutes}`;
 }
 
 /**

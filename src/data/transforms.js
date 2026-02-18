@@ -135,72 +135,105 @@ function computeLeadDerivedFields(row) {
     const leadStatus = row.lead_status ? String(row.lead_status).toLowerCase().trim() : '';
     const lifecycleStage = row.lifecycle_stage ? String(row.lifecycle_stage).toLowerCase().trim() : '';
 
-    // Booked calls - determined by lead status
-    derived.booked_calls_count = 0;
-    derived.first_call_shown = false;
-    derived.first_call_no_show = false;
-    derived.dq_before_call = false;
-    derived.dq_on_call = false;
-    derived.second_call_booked = false;
+    const bookedCallsRaw = coerceValue(row.booked_calls, 'booked_calls');
+    const explicitBookedCalls = typeof bookedCallsRaw === 'number' && !isNaN(bookedCallsRaw)
+        ? Math.max(0, Math.round(bookedCallsRaw))
+        : null;
 
-    // Map HubSpot lead status to derived fields
-    if (leadStatus.includes('first call booked') || leadStatus.includes('booked')) {
-        derived.booked_calls_count = 1;
+    const explicitFirstShown = coerceValue(row.first_call_shown, 'first_call_shown') === true;
+    const explicitFirstNoShow = coerceValue(row.first_call_no_show, 'first_call_no_show') === true;
+    const explicitDQBefore = coerceValue(row.dq_before_call, 'dq_before_call') === true;
+    const explicitDQOn = coerceValue(row.dq_on_call, 'dq_on_call') === true;
+    const explicitSecondBooked = coerceValue(row.second_call_booked, 'second_call_booked') === true;
+    const explicitSecondShown = coerceValue(row.second_call_shown, 'second_call_shown') === true;
+    const explicitQualified = coerceValue(row.qualified, 'qualified') === true;
+    const explicitCustomer = coerceValue(row.customer, 'customer') === true;
+
+    const rescheduleRaw = coerceValue(row.reschedule_count, 'reschedule_count');
+    const explicitRescheduleCount = typeof rescheduleRaw === 'number' && !isNaN(rescheduleRaw)
+        ? Math.max(0, Math.round(rescheduleRaw))
+        : null;
+
+    // Booked calls - determined by lead status
+    derived.booked_calls_count = explicitBookedCalls ?? 0;
+    derived.first_call_shown = explicitFirstShown;
+    derived.first_call_no_show = explicitFirstNoShow;
+    derived.dq_before_call = explicitDQBefore;
+    derived.dq_on_call = explicitDQOn;
+    derived.second_call_booked = explicitSecondBooked;
+
+    // Map HubSpot lead status to derived fields when explicit fields are missing
+    if (explicitBookedCalls === null && (leadStatus.includes('first call booked') || leadStatus.includes('booked'))) {
+        derived.booked_calls_count = Math.max(1, derived.booked_calls_count);
 
         // Check actual call outcome from first_call_status field
         const callStatus = row.first_call_status ? String(row.first_call_status).toLowerCase().trim() : '';
-        if (callStatus.includes('show')) {
+        if (!explicitFirstShown && callStatus.includes('show')) {
             derived.first_call_shown = true;
-        } else if (callStatus.includes('no show')) {
+        } else if (!explicitFirstNoShow && callStatus.includes('no show')) {
             derived.first_call_no_show = true;
         }
     }
     
-    if (leadStatus.includes('dq\'d b4 call') || leadStatus.includes('dq b4 call') || leadStatus.includes("dq'd before")) {
+    if (!explicitDQBefore && (leadStatus.includes('dq\'d b4 call') || leadStatus.includes('dq b4 call') || leadStatus.includes("dq'd before"))) {
         derived.dq_before_call = true;
-        derived.booked_calls_count = 1;
+        if (explicitBookedCalls === null) {
+            derived.booked_calls_count = Math.max(1, derived.booked_calls_count);
+        }
     }
     
-    if (leadStatus.includes('dq\'d on call') || leadStatus.includes("dq'd on call")) {
+    if (!explicitDQOn && (leadStatus.includes('dq\'d on call') || leadStatus.includes("dq'd on call"))) {
         derived.dq_on_call = true;
-        derived.booked_calls_count = 1;
-        derived.first_call_shown = true; // They did show up for the call
+        if (explicitBookedCalls === null) {
+            derived.booked_calls_count = Math.max(1, derived.booked_calls_count);
+        }
+        if (!explicitFirstShown) {
+            derived.first_call_shown = true; // They did show up for the call
+        }
     }
     
-    if (leadStatus.includes('first call completed')) {
-        derived.booked_calls_count = 1;
+    if (explicitBookedCalls === null && leadStatus.includes('first call completed')) {
+        derived.booked_calls_count = Math.max(1, derived.booked_calls_count);
         const callStatus = row.first_call_status ? String(row.first_call_status).toLowerCase().trim() : '';
-        if (callStatus.includes('show')) {
+        if (!explicitFirstShown && callStatus.includes('show')) {
             derived.first_call_shown = true;
         }
     }
 
-    if (leadStatus.includes('2nd call booked')) {
+    if (!explicitSecondBooked && leadStatus.includes('2nd call booked')) {
         derived.second_call_booked = true;
-        derived.booked_calls_count = 1;
-        derived.first_call_shown = true; // They made it past first call
+        if (explicitBookedCalls === null) {
+            derived.booked_calls_count = Math.max(1, derived.booked_calls_count);
+        }
+        if (!explicitFirstShown) {
+            derived.first_call_shown = true; // They made it past first call
+        }
     }
 
-    if (leadStatus.includes('closed')) {
-        derived.booked_calls_count = 1;
-        derived.first_call_shown = true;
+    if (explicitBookedCalls === null && leadStatus.includes('closed')) {
+        derived.booked_calls_count = Math.max(1, derived.booked_calls_count);
+        if (!explicitFirstShown) {
+            derived.first_call_shown = true;
+        }
     }
 
     // Account for lifecycle stage
-    derived.is_qualified = lifecycleStage.includes('sales qualified') || 
+    derived.is_qualified = explicitQualified ||
+                          lifecycleStage.includes('sales qualified') ||
                           lifecycleStage.includes('customer') ||
                           leadStatus.includes('closed');
     
-    derived.is_customer = lifecycleStage.includes('customer') || 
+    derived.is_customer = explicitCustomer ||
+                         lifecycleStage.includes('customer') ||
                          leadStatus.includes('closed');
 
     // Second call shown - from second_call_status field
     const secondCallStatus = row.second_call_status ? String(row.second_call_status).toLowerCase().trim() : '';
-    derived.second_call_shown = secondCallStatus.includes('show');
+    derived.second_call_shown = explicitSecondShown || secondCallStatus.includes('show');
 
     // Reschedule count - from rescheduled_call_status "Rescheduled" or "No Show"
     const rescheduledStatus = row.rescheduled_call_status ? String(row.rescheduled_call_status).toLowerCase().trim() : '';
-    derived.reschedule_count_num = rescheduledStatus.includes('rescheduled') ? 1 : 0;
+    derived.reschedule_count_num = explicitRescheduleCount ?? (rescheduledStatus.includes('rescheduled') ? 1 : 0);
     derived.has_rescheduled = derived.reschedule_count_num > 0;
 
     // First call date

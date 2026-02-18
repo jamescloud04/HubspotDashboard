@@ -8,6 +8,15 @@ import { getKPIDisplayValue } from '../kpis/compute.js';
 import { formatCurrency, formatPercent, formatInteger, formatDate } from '../data/parse.js';
 import { state } from './state.js';
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 /**
  * Render KPI card
  */
@@ -64,7 +73,7 @@ export function renderTableHeader(columns, sortField, sortDirection) {
         const arrow = isSorted ? (sortDirection === 'asc' ? '↑' : '↓') : '';
         const classes = `${isSorted ? `sorted-${sortDirection}` : ''} sortable`;
 
-        return `<th class="${classes}" data-field="${col}">${header} ${arrow}</th>`;
+        return `<th class="${classes}" data-field="${escapeHtml(col)}">${escapeHtml(header)} ${escapeHtml(arrow)}</th>`;
     }).join('');
 }
 
@@ -96,7 +105,7 @@ export function renderTableRow(row, columns, currentTable) {
             displayValue = String(value).length > 50 ? String(value).substring(0, 47) + '...' : String(value);
         }
 
-        htmlRow += `<td>${displayValue}</td>`;
+        htmlRow += `<td>${escapeHtml(displayValue)}</td>`;
     });
 
     htmlRow += '</tr>';
@@ -155,8 +164,8 @@ export function renderQualityIssue(issue) {
 
     return `
         <div class="quality-item ${classes}">
-            <strong>Row ${issue.rowNumber} - ${issue.field}</strong>
-            <div>${issue.reason}</div>
+            <strong>Row ${issue.rowNumber} - ${escapeHtml(issue.field)}</strong>
+            <div>${escapeHtml(issue.reason)}</div>
         </div>
     `;
 }
@@ -209,8 +218,8 @@ export function renderDetailModal(row, table) {
 
         html += `
             <div class="detail-item">
-                <div class="detail-label">${fieldName}</div>
-                <div class="detail-value">${displayValue}</div>
+                <div class="detail-label">${escapeHtml(fieldName)}</div>
+                <div class="detail-value">${escapeHtml(displayValue)}</div>
             </div>
         `;
     });
@@ -231,11 +240,15 @@ export function updateUploadStatus(leads, deals) {
     if (leads) parts.push(`Leads: ${leads.length} rows`);
     if (deals) parts.push(`Deals: ${deals.length} rows`);
 
+    let statusText = '';
     if (parts.length === 0) {
-        statusEl.textContent = 'Ready to upload files';
+        statusText = 'Ready to import data';
     } else {
-        statusEl.textContent = parts.join(' | ') + ` (${new Date().toLocaleTimeString()})`;
+        statusText = parts.join(' | ') + ` (${new Date().toLocaleTimeString()})`;
     }
+
+    statusEl.textContent = statusText;
+
 }
 
 /**

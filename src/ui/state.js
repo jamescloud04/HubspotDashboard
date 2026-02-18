@@ -60,24 +60,24 @@ export const state = {
 
     // UI state
     ui: {
-        currentPage: 'dashboard',  // 'upload', 'dashboard', 'charts', 'insights', 'quality', 'deals', 'leads', or 'closers'
+        currentPage: 'dashboard',  // 'dashboard', 'kpis', 'charts', 'insights', 'quality', 'deals', 'leads', 'closers', or 'settings'
         selectedRow: null,
         insights: [],
         qualityIssues: [],
+        lastUpdatedAt: null,
+        dashboardSelection: {
+            chart: 'funnel',
+            kpi: 'deals_total_value'
+        },
         // Dashboard customization
-        dashboardSettings: {
-            showKPIs: true,
-            showFunnelChart: true,
-            showRevenueChart: true,
-            showInsights: true,
-            showQuality: true,
-            compactMode: true
-        }
+        dashboardSettings: getDefaultDashboardSettings()
     }
 };
 
 // Event listeners for state changes
 const listeners = new Set();
+let batchDepth = 0;
+let pendingNotify = false;
 
 /**
  * Subscribe to state changes
@@ -91,7 +91,45 @@ export function subscribe(callback) {
  * Notify all listeners of state change
  */
 function notifyListeners() {
+    if (batchDepth > 0) {
+        pendingNotify = true;
+        return;
+    }
+
     listeners.forEach(callback => callback(state));
+}
+
+function flushNotificationsIfNeeded() {
+    if (batchDepth === 0 && pendingNotify) {
+        pendingNotify = false;
+        listeners.forEach(callback => callback(state));
+    }
+}
+
+function getDefaultDashboardSettings() {
+    return {
+        showFiltersPanel: true,
+        showKpiSpotlight: true,
+        showChartSpotlight: true,
+        showIntelPanel: true,
+        compactMode: true,
+        persistDataLocally: true,
+        autoSyncConnectorOnLoad: false,
+        hubspotConnectorEndpoint: ''
+    };
+}
+
+/**
+ * Batch multiple mutations into a single UI update
+ */
+export function batchStateUpdate(mutator) {
+    batchDepth += 1;
+    try {
+        mutator(state);
+    } finally {
+        batchDepth = Math.max(0, batchDepth - 1);
+        flushNotificationsIfNeeded();
+    }
 }
 
 /**
@@ -210,6 +248,8 @@ export function setQualityIssues(issues) {
  * Clear all data
  */
 export function clearAllData() {
+    const dashboardSettings = state.ui.dashboardSettings || getDefaultDashboardSettings();
+
     state.rawLeads = null;
     state.rawDeals = null;
     state.leads = null;
@@ -255,7 +295,13 @@ export function clearAllData() {
         currentPage: 'dashboard',
         selectedRow: null,
         insights: [],
-        qualityIssues: []
+        qualityIssues: [],
+        lastUpdatedAt: null,
+        dashboardSelection: {
+            chart: 'funnel',
+            kpi: 'deals_total_value'
+        },
+        dashboardSettings
     };
     notifyListeners();
 }
@@ -283,7 +329,36 @@ export function loadDashboardSettings() {
     try {
         const saved = localStorage.getItem('dashboardSettings');
         if (saved) {
-            state.ui.dashboardSettings = { ...state.ui.dashboardSettings, ...JSON.parse(saved) };
+            const parsed = JSON.parse(saved);
+
+            // Backward compatibility for earlier setting keys
+            if (parsed.showKPIs !== undefined && parsed.showKpiSpotlight === undefined) {
+                parsed.showKpiSpotlight = parsed.showKPIs;
+            }
+            if (
+                (parsed.showFunnelChart !== undefined || parsed.showRevenueChart !== undefined) &&
+                parsed.showChartSpotlight === undefined
+            ) {
+                parsed.showChartSpotlight = Boolean(parsed.showFunnelChart || parsed.showRevenueChart);
+            }
+            if (
+                (parsed.showInsights !== undefined || parsed.showQuality !== undefined) &&
+                parsed.showIntelPanel === undefined
+            ) {
+                parsed.showIntelPanel = Boolean(parsed.showInsights || parsed.showQuality);
+            }
+
+            if (parsed.persistDataLocally === undefined) {
+                parsed.persistDataLocally = true;
+            }
+            if (parsed.autoSyncConnectorOnLoad === undefined) {
+                parsed.autoSyncConnectorOnLoad = false;
+            }
+            if (typeof parsed.hubspotConnectorEndpoint !== 'string') {
+                parsed.hubspotConnectorEndpoint = '';
+            }
+
+            state.ui.dashboardSettings = { ...state.ui.dashboardSettings, ...parsed };
         }
     } catch (e) {
         console.warn('Failed to load dashboard settings:', e);
@@ -293,7 +368,7 @@ export function loadDashboardSettings() {
  * Set current page
  */
 export function setCurrentPage(page) {
-    if (['upload', 'dashboard', 'charts', 'insights', 'quality', 'deals', 'leads', 'closers', 'settings'].includes(page)) {
+    if (['dashboard', 'kpis', 'charts', 'insights', 'quality', 'deals', 'leads', 'closers', 'settings'].includes(page)) {
         state.ui.currentPage = page;
         notifyListeners();
     }

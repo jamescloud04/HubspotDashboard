@@ -2,7 +2,8 @@
  * CSV Parsing and Validation Module
  */
 
-import { normalizeHeader, hasRequiredColumns, getMissingColumns, REQUIRED_COLUMNS } from './schema.js';
+import { normalizeHeader, hasRequiredColumns, getMissingColumns } from './schema.js';
+import * as XLSX from 'xlsx';
 
 export class ParseError {
     constructor(message, context = {}) {
@@ -20,10 +21,20 @@ export class DataQualityIssue {
 }
 
 /**
- * Parse CSV file using PapaParse
+ * Parse tabular file (CSV/Excel)
  * Returns { success, data, errors, stats }
  */
 export async function parseCSV(file) {
+    const fileName = (file?.name || '').toLowerCase();
+
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        return parseExcel(file);
+    }
+
+    return parseDelimited(file);
+}
+
+function parseDelimited(file) {
     return new Promise((resolve) => {
         if (!window.Papa) {
             resolve({
@@ -82,6 +93,56 @@ export async function parseCSV(file) {
             }
         });
     });
+}
+
+async function parseExcel(file) {
+    try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array', cellDates: false });
+        const firstSheet = workbook.SheetNames[0];
+
+        if (!firstSheet) {
+            return {
+                success: false,
+                data: [],
+                errors: [new ParseError('Excel file has no worksheets')],
+                stats: { totalRows: 0, validRows: 0 }
+            };
+        }
+
+        const sheet = workbook.Sheets[firstSheet];
+        const data = XLSX.utils.sheet_to_json(sheet, {
+            defval: '',
+            raw: false,
+            blankrows: false
+        });
+
+        if (!data || data.length === 0) {
+            return {
+                success: false,
+                data: [],
+                errors: [new ParseError('Excel sheet is empty')],
+                stats: { totalRows: 0, validRows: 0 }
+            };
+        }
+
+        return {
+            success: true,
+            data,
+            errors: [],
+            stats: {
+                totalRows: data.length,
+                validRows: data.length
+            }
+        };
+    } catch (error) {
+        return {
+            success: false,
+            data: [],
+            errors: [new ParseError(`Excel parse failed: ${error.message}`)],
+            stats: { totalRows: 0, validRows: 0 }
+        };
+    }
 }
 
 /**
@@ -165,6 +226,21 @@ export function validateAndNormalizeDataset(rawData, type) {
             }
         });
 
+        // Leads require at least one name representation
+        if (type === 'leads') {
+            const hasFullName = Boolean(normalized.lead_name && String(normalized.lead_name).trim());
+            const hasFirstLast = Boolean(
+                (normalized.first_name && String(normalized.first_name).trim()) ||
+                (normalized.last_name && String(normalized.last_name).trim())
+            );
+            if (!hasFullName && !hasFirstLast) {
+                rowIssues.push({
+                    field: 'lead_name',
+                    reason: 'Missing critical field (lead_name or first_name/last_name)'
+                });
+            }
+        }
+
         // Store row issues
         rowIssues.forEach(issue => {
             issues.push(new DataQualityIssue(rowNum, issue.field, issue.reason));
@@ -196,11 +272,32 @@ export function validateAndNormalizeDataset(rawData, type) {
 function isCriticalField(field, type) {
     const criticalFields = {
         deals: ['deal_id', 'deal_name', 'contract_value'],
-        leads: ['lead_id', 'lead_name', 'email']
+        leads: ['lead_id', 'email']
     };
 
     return (criticalFields[type] || []).includes(field);
 }
+
+const BOOLEAN_FIELDS = new Set([
+    'active',
+    'first_call_shown',
+    'first_call_no_show',
+    'dq_before_call',
+    'dq_on_call',
+    'qualified',
+    'customer',
+    'second_call_booked',
+    'second_call_shown',
+    'second_call_needed'
+]);
+
+const NUMERIC_FIELDS = new Set([
+    'contract_value',
+    'total_paid',
+    'booked_calls',
+    'reschedule_count',
+    'installment_amount'
+]);
 
 /**
  * Coerce string values to appropriate types
@@ -227,8 +324,7 @@ export function coerceValue(value, fieldName) {
     }
 
     // Boolean fields
-    if (fieldName.includes('active') || fieldName.includes('shown') || fieldName.includes('booked') || 
-        fieldName.includes('qualified') || fieldName.includes('customer') || fieldName.includes('needed')) {
+    if (BOOLEAN_FIELDS.has(fieldName) || fieldName.startsWith('is_')) {
         const lower = String(value).toLowerCase().trim();
         if (['true', '1', 'yes', 'y'].includes(lower)) return true;
         if (['false', '0', 'no', 'n'].includes(lower)) return false;
@@ -236,8 +332,13 @@ export function coerceValue(value, fieldName) {
     }
 
     // Numeric fields (currency/amounts)
-    if (fieldName.includes('value') || fieldName.includes('contract') || fieldName.includes('paid') || 
-        fieldName.includes('amount') || fieldName.includes('count') || fieldName.includes('installment')) {
+    if (
+        NUMERIC_FIELDS.has(fieldName) ||
+        fieldName.includes('value') ||
+        fieldName.includes('paid') ||
+        fieldName.includes('amount') ||
+        fieldName.endsWith('_count')
+    ) {
         const numStr = String(value).replace(/[$,]/g, '').trim();
         const num = parseFloat(numStr);
         return isNaN(num) ? value : num;

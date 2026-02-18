@@ -5,7 +5,7 @@
 
 export const REQUIRED_COLUMNS = {
     deals: ['deal_id', 'deal_name', 'contract_value'],
-    leads: ['lead_id', 'first_name', 'last_name', 'email']
+    leads: ['lead_id', 'email']
 };
 
 export const OPTIONAL_COLUMNS = {
@@ -159,7 +159,19 @@ export function getAllColumns(type) {
 export function hasRequiredColumns(headers, type) {
     const normalizedHeaders = headers.map(h => normalizeHeader(h, type));
     const required = REQUIRED_COLUMNS[type] || [];
-    return required.every(col => normalizedHeaders.includes(col));
+    const hasBaseRequired = required.every(col => normalizedHeaders.includes(col));
+
+    if (!hasBaseRequired) {
+        return false;
+    }
+
+    if (type === 'leads') {
+        const hasLeadName = normalizedHeaders.includes('lead_name');
+        const hasFirstLast = normalizedHeaders.includes('first_name') || normalizedHeaders.includes('last_name');
+        return hasLeadName || hasFirstLast;
+    }
+
+    return true;
 }
 
 /**
@@ -168,7 +180,17 @@ export function hasRequiredColumns(headers, type) {
 export function getMissingColumns(headers, type) {
     const normalizedHeaders = headers.map(h => normalizeHeader(h, type));
     const required = REQUIRED_COLUMNS[type] || [];
-    return required.filter(col => !normalizedHeaders.includes(col));
+    const missing = required.filter(col => !normalizedHeaders.includes(col));
+
+    if (type === 'leads') {
+        const hasLeadName = normalizedHeaders.includes('lead_name');
+        const hasFirstLast = normalizedHeaders.includes('first_name') || normalizedHeaders.includes('last_name');
+        if (!hasLeadName && !hasFirstLast) {
+            missing.push('lead_name (or first_name/last_name)');
+        }
+    }
+
+    return missing;
 }
 
 /**
